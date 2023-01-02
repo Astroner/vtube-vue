@@ -1,14 +1,16 @@
 <template>
   <page name="Playlists" title>
-    <div
-      v-for="item of list"
-      :key="item.id"
-      class="playlists__list"
-      :style="{ backgroundImage: `url(${item.display[item.display.length - 1].url})` }"
-      @click="play(item.id)"
-    >
-      <div class="playlists__title">
-        {{ item.title }}
+    <div v-if="playlists">
+      <div
+        v-for="item of playlists"
+        :key="item.list"
+        class="playlists__list"
+        :style="{ backgroundImage: `url(${item.display[item.display.length - 1].url})` }"
+        @click="play(item.list)"
+      >
+        <div class="playlists__title">
+          {{ item.title }}
+        </div>
       </div>
     </div>
   </page>
@@ -21,6 +23,8 @@ import Page from "@/Pages/components/Page.vue";
 import { useStore } from "@/store";
 import { usePages } from "@/Pages/hooks/usePages";
 import { getMidItem } from "@/helpers/functions/getMidItem";
+import { asyncComputed } from "@/helpers/hooks/asyncComputed";
+import { getUserPlaylists } from "@/api/main/playlists";
 
 export default defineComponent({
   components: { Page },
@@ -28,12 +32,18 @@ export default defineComponent({
     const pages = usePages();
     const store = useStore();
 
-    const list = computed(() => store.state.playlists.items);
+    const token = computed(() => store.state.user.token);
+
+    const [, playlists] = asyncComputed(async () => {
+      if (!token.value) return "EXIT";
+      const data = await getUserPlaylists(token.value);
+      return data;
+    });
 
     return {
-      list,
-      play: (id: string) => {
-        store.dispatch("playPlaylist", id);
+      playlists,
+      play: (list: string) => {
+        store.dispatch("playPlaylist", list);
         pages.gotToPage("Player");
       },
       getMidItem,

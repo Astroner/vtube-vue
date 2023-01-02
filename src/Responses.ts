@@ -53,3 +53,9 @@ export interface Playlist {
     display: YTImage[];
     list: ListItem[];
 }
+
+export interface PlaylistWithID {
+    title: string;
+    display: YTImage[];
+    list: string;
+}

@@ -20,18 +20,7 @@ export interface User {
   }
 }
 
-export interface PlaylistData {
-  id: string,
-  title: string,
-  display: YTImage[],
-}
-
-export interface Playlists {
-  items: PlaylistData[]
-}
-
 export interface Modules {
   queue: QueueState;
   user: User;
-  playlists: Playlists;
 }

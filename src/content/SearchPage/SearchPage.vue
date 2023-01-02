@@ -81,12 +81,6 @@
         >
           Shuffle
         </button>
-        <button
-          v-if="info.type === 'PLAYLIST'"
-          @click="save()"
-        >
-          Save
-        </button>
       </div>
     </transition>
   </page>
@@ -145,17 +139,6 @@ export default defineComponent({
           store.commit("setQueue", info.value.info.list.sort(() => Math.random() * 2 - 1));
           reset();
           pages.gotToPage("Player");
-        }
-      },
-      save: () => {
-        if (info.value?.type === "PLAYLIST") {
-          store.commit("addPlaylist", {
-            id: info.value.id,
-            title: info.value.info.title,
-            display: info.value.info.display,
-          });
-          reset();
-          pages.gotToPage("Playlists");
         }
       },
     };
