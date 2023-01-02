@@ -46,13 +46,13 @@ export const queue: Module<QueueState, Modules> = {
   },
   actions: {
     async playDynamicPlaylist(store, payload: { list: string, code: string }) {
-      if (!store.rootState.user.psid) return;
+      if (!store.rootState.user.token) return;
 
       store.commit('registerLoading');
       const requestId = store.state.currentRequestId;
 
       const playlist = await getDynamicPlaylist(
-        store.rootState.user.psid,
+        store.rootState.user.token,
         payload.list,
         payload.code,
       );

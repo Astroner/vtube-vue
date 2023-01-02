@@ -7,7 +7,7 @@
       backgroundImage: `url(${getMidItem(display).url})`,
       margin: margin,
     }"
-    :class="{ 'display-image__root': true, [className]: !!className }"
+    class="display-image__root"
   >
 
   </div>
@@ -27,7 +27,6 @@ export default defineComponent({
     },
     height: String,
     width: String,
-    className: String,
     margin: String,
   },
   setup() {

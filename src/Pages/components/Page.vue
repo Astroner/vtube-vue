@@ -5,7 +5,7 @@
         ? { zIndex: pageIndex + 1, width: `calc(100% - ${pageIndex * 2}px)` }
         : { width: '100%' }
     "
-    :class="{ root: true, visible: isVisible, hidden: !isVisible, [className]: !!className }"
+    :class="{ root: true, visible: isVisible, hidden: !isVisible, [className ?? '']: !!className }"
   >
     <Header />
     <h2 v-if="typeof title === 'string' || (!!title && name)">

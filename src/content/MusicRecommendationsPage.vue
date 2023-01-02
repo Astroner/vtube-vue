@@ -45,17 +45,17 @@ export default defineComponent({
     const store = useStore();
     const pages = usePages();
 
-    const psid = computed(() => store.state.user.psid);
-    const [, categories] = asyncComputed(() => {
-      if (!psid.value) return "EXIT";
-      return getMusicRecommendations(psid.value)
-        .then((res) => Promise.resolve(res.categories));
+    const token = computed(() => store.state.user.token);
+
+    const [, categories] = asyncComputed(async () => {
+      if (!token.value) return "EXIT";
+      const result = await getMusicRecommendations(token.value);
+      return result.categories;
     });
 
     return {
       categories,
       getMidItem,
-      psid,
       play: (list: string, code: string) => {
         pages.gotToPage("Player");
         store.dispatch('playDynamicPlaylist', {

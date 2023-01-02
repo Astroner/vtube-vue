@@ -1,31 +1,24 @@
 <template>
   <page name="Profile" title>
-    <h3>
-      Your PSID:
-    </h3>
-    <form @submit="submit">
-      <div class="profile__textarea__container" >
-        <div>
-          Print PSID
-        </div>
-        <textarea
-          :class="{
-            profile__textarea__input: true,
-            'profile__textarea__input--visible': value.length > 0,
-            'profile__textarea__input--hidden': value.length === 0,
-            'profile__textarea__input--active': changed,
-            'profile__textarea__input--default': !changed,
-          }"
-          :value="value"
-          @input="(e) => value = e.target.value"
-        />
+    <Transition name="fade">
+      <div v-if="!isLoggedIn">
+        <Input title="Name" v-model:value="username" />
+        <Input title="Passphrase" v-model:value="password" password style="margin-top: 10px;"/>
+        <Button @click="submit" style="margin-top: 20px">
+          Sign
+        </Button>
       </div>
-      <transition name="fade">
-        <button v-if="changed" type="submit">
-          Print
-        </button>
-      </transition>
-    </form>
+    </Transition>
+    <Transition name="fade">
+      <div v-if="isLoggedIn">
+        <div class="signature" v-if="userInfo">
+          Signed by "{{ userInfo.username }}"
+        </div>
+        <Button @click="reset" style="margin-top: 20px">
+          Wipe
+        </Button>
+      </div>
+    </Transition>
   </page>
 </template>
 
@@ -38,25 +31,34 @@ import {
 
 import Page from "@/Pages/components/Page.vue";
 import { useStore } from "@/store";
+import Input from "@/components/Input.vue";
+import Button from "@/components/Button.vue";
 
 export default defineComponent({
-  components: { Page },
+  components: { Page, Input, Button },
   setup() {
     const store = useStore();
 
-    const psid = computed(() => store.state.user.psid ?? "");
+    const username = ref<string>("");
+    const password = ref("");
 
-    const value = ref(psid.value);
-
-    const changed = computed(() => value.value !== psid.value);
+    const isLoggedIn = computed(() => !!store.state.user.token);
+    const userInfo = computed(() => store.state.user.info);
 
     return {
-      psid,
-      value,
-      changed,
-      submit: (e: Event) => {
-        e.preventDefault();
-        store.commit("login", value.value);
+      isLoggedIn,
+      username,
+      password,
+      userInfo,
+      async submit(e: Event) {
+        const result = await store.dispatch("login", { username: username.value, password: password.value });
+        if (result === "SUCCESS") {
+          username.value = "";
+          password.value = "";
+        }
+      },
+      reset() {
+        store.commit("resetToken");
       },
     };
   },
@@ -64,29 +66,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-h3 {
-  margin: 0 0 10px;
-}
-button {
-  width: 100%;
-
-  border: 1px solid #000;
-
-  background-color: #fff;
-
-  font-size: 20px;
-  line-height: 24px;
-
-  margin-top: 10px;
-
-  transition: background-color .3s, color .3s;
-
-  &:active {
-    background-color: #000;
-    color: #fff;
-  }
-}
-
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity .3s;
@@ -96,73 +75,7 @@ button {
 .fade-leave-to {
   opacity: 0;
 }
-
-.profile__ {
-  &textarea__ {
-    &container {
-      width: 100%;
-      position: relative;
-
-      border: 1px dashed black;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      font-size: 20px;
-      color: #919191;
-
-      &::after {
-        content: "";
-        display: block;
-
-        padding-bottom: 50%;
-      }
-    }
-    &input {
-      position: absolute;
-      top: 5px;
-      left: 5px;
-
-      width: calc(100% - 10px);
-      height: calc(100% - 10px);
-
-      background-color: #fff;
-
-      outline: none;
-
-      padding: 5px;
-
-      transition: opacity .3s, border .3s, box-shadow .3s;
-
-      resize: none;
-
-      &:focus {
-        opacity: 1;
-
-        border: 1px solid black;
-
-        box-shadow: 0 0 10px rgba($color: #000000, $alpha: .3);
-      }
-
-      &--visible {
-        opacity: 1;
-      }
-      &--hidden {
-        opacity: 0;
-      }
-
-      &--active {
-        border: 1px solid black;
-
-        box-shadow: 0 0 10px rgba($color: #000000, $alpha: .3);
-      }
-      &--default {
-        border: 1px solid transparent;
-
-        box-shadow: 0 0 0 rgba($color: #000000, $alpha: .3);
-      }
-    }
-  }
+.signature {
+  font-size: 28px;
 }
 </style>

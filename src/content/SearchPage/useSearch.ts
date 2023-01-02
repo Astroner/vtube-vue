@@ -14,7 +14,7 @@ export const useSearch = () => {
   const value = ref("");
   const isSearching = ref(false);
 
-  const psid = computed(() => store.state.user.psid);
+  const token = computed(() => store.state.user.token);
 
   const processed = computed(() => {
     if (!value.value) return null;
@@ -51,11 +51,11 @@ export const useSearch = () => {
         }));
     }
 
-    if (!psid.value) return "EXIT";
+    if (!token.value) return "EXIT";
 
     if (processed.value.type === "DYNAMIC_PLAYLIST") {
       return getDynamicPlaylist(
-        psid.value,
+        token.value,
         processed.value.value.list,
         processed.value.value.code,
       )

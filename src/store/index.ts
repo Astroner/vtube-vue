@@ -13,15 +13,15 @@ export const store = createStore({
   },
   plugins: [
     (initialStore) => {
-      const psidKey = "app__storage__psid";
-      const psid = localStorage.getItem(psidKey);
-      if (psid) {
-        initialStore.state.user.psid = psid;
+      const tokenKey = "app__storage__token";
+      const token = localStorage.getItem(tokenKey);
+      if (token) {
+        initialStore.state.user.token = token;
       }
 
       initialStore.subscribe((_, state) => {
-        if (state.user.psid) localStorage.setItem(psidKey, state.user.psid);
-        else localStorage.removeItem(psidKey);
+        if (state.user.token) localStorage.setItem(tokenKey, state.user.token);
+        else localStorage.removeItem(tokenKey);
       });
     },
     (initialStore) => {
@@ -38,6 +38,11 @@ export const store = createStore({
       initialStore.subscribe((_, state) => {
         localStorage.setItem(playlistsKey, JSON.stringify(state.playlists));
       });
+    },
+    async (initialStore) => {
+      if (initialStore.state.user.token) {
+        setTimeout(() => store.dispatch("fetchInfo"), 0);
+      }
     },
   ],
 });

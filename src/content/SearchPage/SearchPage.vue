@@ -55,7 +55,7 @@
     <transition name="answers">
       <div v-if="info" class="search__second search__info__border">
         <display-image
-          className="search__info__image"
+          class="search__info__image"
           :display="info.type === 'VIDEO' ? info.info.displayImage : info.info.display"
         />
         <div class="search__info__title">

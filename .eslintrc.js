@@ -25,5 +25,7 @@ module.exports = {
     'prefer-template': 'off',
     'vuejs-accessibility/media-has-caption': 'off',
     'vuejs-accessibility/label-has-for': 'off',
+    'no-trailing-spaces': 'off',
+    indent: 'off',
   },
 };

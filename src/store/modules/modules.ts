@@ -14,7 +14,10 @@ export interface QueueState {
 }
 
 export interface User {
-  psid: string | null
+  token: string | null,
+  info: null | {
+    username: string,
+  }
 }
 
 export interface PlaylistData {
