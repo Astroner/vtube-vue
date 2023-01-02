@@ -8,9 +8,9 @@
         <div>
           <div
             v-for="item of category.items"
-            :key="item.list"
+            :key="item.type === 'VIDEO' ? item.code : item.list"
             class="music__item"
-            @click="play(item.list, item.code)"
+            @click="play(item)"
           >
             <display-image
               :display="item.display"
@@ -38,6 +38,7 @@ import { useStore } from "@/store";
 import { asyncComputed } from "@/helpers/hooks/asyncComputed";
 import DisplayImage from "@/components/DisplayImage.vue";
 import { usePages } from "@/Pages/hooks/usePages";
+import { Recommendation } from "@/Responses";
 
 export default defineComponent({
   components: { Page, DisplayImage },
@@ -56,11 +57,15 @@ export default defineComponent({
     return {
       categories,
       getMidItem,
-      play: (list: string, code: string) => {
+      play: (item: Recommendation) => {
         pages.gotToPage("Player");
-        store.dispatch('playDynamicPlaylist', {
-          list, code,
-        });
+        if (item.type === "VIDEO") {
+          store.commit("setQueue", [item]);
+        } else {
+          store.dispatch('playDynamicPlaylist', {
+            list: item.list, code: item.code,
+          });
+        }
       },
     };
   },

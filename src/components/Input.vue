@@ -35,7 +35,7 @@ export default {
         value: String,
         password: Boolean,
     },
-    setup(_: any, ctx: SetupContext) {
+    setup(_: unknown, ctx: SetupContext) {
         const state = ref<boolean>(false);
 
         return {

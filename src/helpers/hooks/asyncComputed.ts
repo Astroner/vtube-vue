@@ -5,6 +5,7 @@ export interface ComputeStatus {
 }
 
 export const asyncComputed = <T>(caller: (status: ComputeStatus) => T | "EXIT" | Promise<T | "EXIT">): [Ref<boolean>, Ref<T | null>, Ref<null | Error>] => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data: Ref<null | T> = ref<null | T>(null) as any;
   const isLoading = ref<boolean>(true);
   const error = ref<Error | null>(null);

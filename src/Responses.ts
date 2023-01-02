@@ -4,6 +4,13 @@ export interface YTImage {
     height: number;
 }
 
+export interface VideoRecommendation {
+    type: "VIDEO";
+    title: string;
+    display: YTImage[];
+    code: string;
+}
+
 export interface DynamicPlaylistRecommendation {
     type: "DYNAMIC_PLAYLIST";
     title: string;
@@ -12,9 +19,13 @@ export interface DynamicPlaylistRecommendation {
     code: string;
 }
 
+export type Recommendation =
+    | VideoRecommendation
+    | DynamicPlaylistRecommendation;
+
 export interface MusicCategory {
     title: string;
-    items: DynamicPlaylistRecommendation[];
+    items: Recommendation[];
 }
 
 export interface MusicCategories {

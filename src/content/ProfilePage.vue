@@ -33,11 +33,13 @@ import Page from "@/Pages/components/Page.vue";
 import { useStore } from "@/store";
 import Input from "@/components/Input.vue";
 import Button from "@/components/Button.vue";
+import { usePages } from "@/Pages/hooks/usePages";
 
 export default defineComponent({
   components: { Page, Input, Button },
   setup() {
     const store = useStore();
+    const pages = usePages();
 
     const username = ref<string>("");
     const password = ref("");
@@ -50,11 +52,12 @@ export default defineComponent({
       username,
       password,
       userInfo,
-      async submit(e: Event) {
+      async submit() {
         const result = await store.dispatch("login", { username: username.value, password: password.value });
         if (result === "SUCCESS") {
           username.value = "";
           password.value = "";
+          pages.gotToPage("Music recommendations");
         }
       },
       reset() {
