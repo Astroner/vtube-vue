@@ -27,7 +27,6 @@
                     :title="item.title"
                 />
             </div>
-    
         </fade-in>
     </div>
   </page>
