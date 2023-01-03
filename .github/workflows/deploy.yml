@@ -1,4 +1,4 @@
-name: Greetings
+name: Deploy
 
 on:
   push:
@@ -13,5 +13,5 @@ jobs:
       - name: Webhook
         uses: distributhor/workflow-webhook@latest
         with:
-          url: ${{ secret.HOOK_URL }}
-          json: '{ "key": "${{ secret.HOOK_KEY }}" }'
+          url: ${{ secrets.HOOK_URL }}
+          json: '{ "key": "${{ secrets.HOOK_KEY }}" }'
