@@ -25,6 +25,7 @@
                     :code="item.code"
                     :display="item.display"
                     :title="item.title"
+                    @click="playFromPosition(index)"
                 />
             </div> 
         </fade-in>
@@ -91,6 +92,9 @@ export default {
             },
             cleanup() {
                 playRequest.value = null;
+            },
+            playFromPosition() {
+                playRequest.value = "P";
             },
         };
     },
