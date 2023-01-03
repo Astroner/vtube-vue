@@ -6,6 +6,7 @@
         </div>
         <div class="playlist__image">
             <display-image 
+                @click="play"
                 :display="playlist.display"
                 height="100%"
             />
