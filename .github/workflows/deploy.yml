@@ -1,0 +1,17 @@
+name: Greetings
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Webhook
+        uses: distributhor/workflow-webhook@latest
+        with:
+          url: ${{ secret.HOOK_URL }}
+          json: '{ "key": "${{ secret.HOOK_KEY }}" }'
