@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Webhook
-        uses: distributhor/workflow-webhook@latest
+        uses: distributhor/workflow-webhook@v2
         with:
           url: ${{ secrets.HOOK_URL }}
           json: '{ "key": "${{ secrets.HOOK_KEY }}" }'
