@@ -57,7 +57,7 @@ export default defineComponent({
         if (result === "SUCCESS") {
           username.value = "";
           password.value = "";
-          pages.gotToPage("Music recommendations");
+          pages.goToPage("Music recommendations");
         }
       },
       reset() {

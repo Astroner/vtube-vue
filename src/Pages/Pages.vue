@@ -59,6 +59,7 @@ export default defineComponent({
     const currentIndex = ref<number | string>(1);
     const shortcuts = ref<Array<{ name: string, icon?: Name, value: string | number }>>([]);
     const content = ref(new Array<{ label: string, index: number }>());
+    const pagePayload = ref<any>(null);
 
     const prevNumericIndex = ref<number | null>(null);
 
@@ -92,10 +93,17 @@ export default defineComponent({
         return idMap.get(id) ?? 0;
       },
       currentIndex,
-      goToPage: (pageName: string) => {
+      goToPage: (pageName: string, payload?: any) => {
         const pageId = nameIdMap.get(pageName);
-        if (pageId) currentIndex.value = pageId;
+        if (!pageId) return;
+        if (payload) {
+          pagePayload.value = payload;
+        } else {
+          pagePayload.value = null;
+        }
+        currentIndex.value = pageId;
       },
+      pagePayload,
     });
     return {
       nextPage: () => {

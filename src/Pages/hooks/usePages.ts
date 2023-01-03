@@ -6,6 +6,6 @@ export const usePages = () => {
   const pages = inject(PagesAPIKey, PagesAPIDefault);
 
   return {
-    gotToPage: pages.goToPage,
+    goToPage: pages.goToPage,
   };
 };

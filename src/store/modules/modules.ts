@@ -11,6 +11,7 @@ export interface QueueState {
   cursor: number;
   isLoading: boolean;
   currentRequestId: number;
+  currentPlaylist: string | null;
 }
 
 export interface User {

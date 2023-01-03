@@ -6,7 +6,7 @@
         :key="item.list"
         class="playlists__list"
         :style="{ backgroundImage: `url(${item.display[item.display.length - 1].url})` }"
-        @click="play(item.list)"
+        @click="play(item)"
       >
         <div class="playlists__title">
           {{ item.title }}
@@ -25,6 +25,7 @@ import { usePages } from "@/Pages/hooks/usePages";
 import { getMidItem } from "@/helpers/functions/getMidItem";
 import { asyncComputed } from "@/helpers/hooks/asyncComputed";
 import { getUserPlaylists } from "@/api/main/playlists";
+import { PlaylistWithID } from "@/Responses";
 
 export default defineComponent({
   components: { Page },
@@ -42,9 +43,8 @@ export default defineComponent({
 
     return {
       playlists,
-      play: (list: string) => {
-        store.dispatch("playPlaylist", list);
-        pages.gotToPage("Player");
+      play: (list: PlaylistWithID) => {
+        pages.goToPage("Playlist", list);
       },
       getMidItem,
     };

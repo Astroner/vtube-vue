@@ -10,6 +10,7 @@ export const queue: Module<QueueState, Modules> = {
     cursor: 0,
     currentRequestId: 0,
     isLoading: false,
+    currentPlaylist: null,
   },
   mutations: {
     addItem(state, item: QueueItem) {
@@ -34,6 +35,11 @@ export const queue: Module<QueueState, Modules> = {
     },
     setQueue(state, items: QueueItem[]) {
       state.items = items;
+      state.cursor = 0;
+    },
+    setQueueAndShuffle(state, items: QueueItem[]) {
+      const shuffle = items.slice(0);
+      state.items = shuffle.sort(() => Math.random() * 2 - 1);
       state.cursor = 0;
     },
     registerLoading(state) {
@@ -62,15 +68,15 @@ export const queue: Module<QueueState, Modules> = {
       store.commit('setQueue', playlist.list);
       store.commit('completeLoading');
     },
-    async playPlaylist(store, payload: string) {
+    async playPlaylist(store, payload: { list: string, shuffle?: boolean }) {
       store.commit('registerLoading');
       const requestId = store.state.currentRequestId;
 
-      const playlist = await getPlaylist(payload);
+      const playlist = await getPlaylist(payload.list);
 
       if (store.state.currentRequestId !== requestId) return;
 
-      store.commit('setQueue', playlist.list);
+      store.commit('setQueue', playlist.list.sort(() => Math.random() * 2 - 1));
       store.commit('completeLoading');
     },
   },

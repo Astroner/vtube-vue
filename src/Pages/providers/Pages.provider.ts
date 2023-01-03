@@ -12,7 +12,8 @@ export interface RegisterOptions {
 export interface PagesAPI {
     register: (id: string, options?: RegisterOptions) => number | string;
     currentIndex: Ref<number | string>;
-    goToPage: (name: string) => void
+    goToPage: (name: string, payload?: any) => void;
+    pagePayload: Ref<any>;
 }
 
 export const PagesAPIKey = Symbol("IndexAPI") as InjectionKey<PagesAPI>;
@@ -26,4 +27,5 @@ export const PagesAPIDefault: PagesAPI = {
   goToPage: () => {
     console.log("USED OUT OF PROVIDER");
   },
+  pagePayload: ref(null),
 };

@@ -5,6 +5,7 @@
     <playlists-page />
     <search-page />
     <profile-page />
+    <playlist-page />
   </pages>
 </template>
 
@@ -16,6 +17,7 @@ import MusicRecommendationsPage from './content/MusicRecommendationsPage.vue';
 import SearchPage from './content/SearchPage/SearchPage.vue';
 import PlaylistsPage from './content/PlaylistsPage.vue';
 import Pages from './Pages/Pages.vue';
+import PlaylistPage from './content/PlaylistPage.vue';
 
 export default defineComponent({
   components: {
@@ -25,6 +27,7 @@ export default defineComponent({
     ProfilePage,
     SearchPage,
     PlaylistsPage,
+    PlaylistPage,
   },
   name: 'App',
 });

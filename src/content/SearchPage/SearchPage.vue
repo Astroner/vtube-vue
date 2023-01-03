@@ -131,14 +131,14 @@ export default defineComponent({
           store.commit("setQueue", info.value.info.list);
         }
         reset();
-        pages.gotToPage("Player");
+        pages.goToPage("Player");
       },
       reset,
       shuffle: () => {
         if (info.value?.type === "PLAYLIST") {
           store.commit("setQueue", info.value.info.list.sort(() => Math.random() * 2 - 1));
           reset();
-          pages.gotToPage("Player");
+          pages.goToPage("Player");
         }
       },
     };

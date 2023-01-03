@@ -5,24 +5,15 @@
       <div v-show="queue.length === 0" class="player-page__placeholder">
         Empty Queue
       </div>
-      <div
+      <display-video 
         v-for="(item, index) of queue"
         :key="item.code"
-        :class="{
-          'player-page__item': true,
-          'player-page__item--active': item.code === currentItem.code,
-          'player-page__item--default': item.code !== currentItem.code
-        }"
+        :active="item.code === currentItem.code"
         @click="setCursor(index)"
-      >
-        <display-image
-          :display="item.display"
-          width="25%"
-          height="calc(100% - 15px)"
-          margin="7px 10px 0px 5px"
-        />
-        {{ item.title }}
-      </div>
+        :display="item.display"
+        :code="item.code"
+        :title="item.title"
+      />
     </div>
   </page>
 </template>
@@ -31,13 +22,13 @@
 import { computed, defineComponent } from "vue";
 
 import Page from "@/Pages/components/Page.vue";
-import DisplayImage from "@/components/DisplayImage.vue";
 import { useStore } from "@/store";
+import DisplayVideo from "@/components/DisplayVideo.vue";
 
 import Player from "./Player.vue";
 
 export default defineComponent({
-  components: { Page, Player, DisplayImage },
+  components: { Page, Player, DisplayVideo },
   setup() {
     const store = useStore();
 
@@ -80,35 +71,6 @@ export default defineComponent({
     color: #919191;
 
     margin-top: 10px;
-  }
-  &__item {
-    border: 1px solid black;
-
-    font-size: 20px;
-    line-height: 24px;
-
-    height: 72px;
-    width: 100%;
-
-    display: flex;
-
-    transition: color .5s, background-color .5s;
-
-    &--active {
-      background-color: black;
-
-      color: white;
-    }
-
-    &--default {
-      background-color: white;
-
-      color: black;
-    }
-
-    &:not(:last-child) {
-      margin-bottom: 5px;
-    }
   }
 }
 </style>

@@ -58,7 +58,7 @@ export default defineComponent({
       categories,
       getMidItem,
       play: (item: Recommendation) => {
-        pages.gotToPage("Player");
+        pages.goToPage("Player");
         if (item.type === "VIDEO") {
           store.commit("setQueue", [item]);
         } else {

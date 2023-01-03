@@ -21,6 +21,7 @@ import {
   defineComponent,
   inject,
   PropType,
+  watch,
 } from "vue";
 
 import { uuid } from "@/helpers/functions/uuid";
@@ -39,7 +40,7 @@ export default defineComponent({
     title: [Boolean, String],
     className: String,
   },
-  setup(props) {
+  setup(props, ctx) {
     const pagesAPI = inject(PagesAPIKey, PagesAPIDefault);
 
     const id = uuid();
@@ -54,6 +55,14 @@ export default defineComponent({
     const isVisible = computed(() => {
       if (typeof pageIndex === "string") return pageIndex === pagesAPI.currentIndex.value;
       return pageIndex <= pagesAPI.currentIndex.value;
+    });
+
+    watch(isActive, (activeValue) => {
+      if (activeValue) {
+        ctx.emit("payload", pagesAPI.pagePayload.value);
+      } else {
+        setTimeout(() => ctx.emit("leave"), 300);
+      }
     });
 
     return {
