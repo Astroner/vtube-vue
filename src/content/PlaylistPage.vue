@@ -26,7 +26,7 @@
                     :display="item.display"
                     :title="item.title"
                 />
-            </div> 
+            </div>
         </fade-in>
     </div>
   </page>
