@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { ref, watchEffect } from 'vue';
+import { ref, watch } from 'vue';
 
 import { getPlaylist } from '@/api/main/playlists';
 import { asyncComputed } from '@/helpers/hooks/asyncComputed';
@@ -67,11 +67,11 @@ export default {
             return list;
         });
 
-        watchEffect(() => {
-            if (!playRequest.value || !items.value || !playlist.value) return;
+        watch([playRequest, items], ([request, list]) => {
+            if (!request || !list) return;
 
-            if (playRequest.value === "P") store.commit("setQueue", items);
-            else store.commit("setQueueAndShuffle", items.value);
+            if (request === "P") store.commit("setQueue", list);
+            else store.commit("setQueueAndShuffle", list);
 
             pages.goToPage("Player");
         });
