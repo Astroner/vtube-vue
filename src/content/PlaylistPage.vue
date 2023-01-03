@@ -26,7 +26,6 @@
                     :display="item.display"
                     :title="item.title"
                 />
-                
             </div>
         </fade-in>
     </div>
