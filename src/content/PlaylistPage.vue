@@ -2,7 +2,9 @@
   <page hidden name="Playlist" @payload="setPayload" @leave="cleanup">
     <div v-if="playlist">
         <div class="playlist__title">
-            {{ playlist.title  }}
+            <div class="playlist__text">
+                {{ playlist.title  }}
+            </div>
         </div>
         <div class="playlist__image">
             <display-image 
@@ -10,6 +12,11 @@
                 :display="playlist.display"
                 height="100%"
             />
+            <fade-in>
+                <div v-if="isCurrentPlaylist" class="playlist__holder">
+                    <icon name="loading" class="playlist__loading" />
+                </div>
+            </fade-in>
         </div>
         <div class="playlist__buttons">
             <Button @click="play">Play</Button>
@@ -25,6 +32,7 @@
                     :code="item.code"
                     :display="item.display"
                     :title="item.title"
+                    :active="item.code === currentVideo?.code"
                     @click="playFromPosition(index)"
                 />
             </div> 
@@ -34,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { getPlaylist } from '@/api/main/playlists';
 import { asyncComputed } from '@/helpers/hooks/asyncComputed';
@@ -46,6 +54,8 @@ import Button from '@/components/Button.vue';
 import FadeIn from '@/components/FadeIn.vue';
 import { useStore } from '@/store';
 import { usePages } from '@/Pages/hooks/usePages';
+import { QueueItem } from '@/store/modules/modules';
+import Icon from '@/components/Icon/Icon.vue';
 
 export default {
     components: { 
@@ -54,6 +64,7 @@ export default {
         DisplayImage, 
         Button, 
         FadeIn,
+        Icon,
     },
     setup() {
         const store = useStore();
@@ -61,8 +72,15 @@ export default {
 
         const playlist = ref<PlaylistWithID | null>(null);
         
-        const playRequest = ref<null | "S" | "P">(null);
+        const playRequest = ref<null | { type: "P" | "S", i: number | null }>(null);
 
+        const isCurrentPlaylist = computed(
+            () => store.state.queue.currentPlaylist === playlist.value?.list,
+        );
+        const currentVideo = computed<QueueItem | null>(
+            () => store.state.queue.items[store.state.queue.cursor] ?? null,
+        );
+    
         const [, items] = asyncComputed(async () => {
             if (!playlist.value) return "EXIT";
             const { list } = await getPlaylist(playlist.value.list);
@@ -72,10 +90,26 @@ export default {
         watch([playRequest, items], ([request, list]) => {
             if (!request || !list) return;
 
-            if (request === "P") store.commit("setQueue", list);
-            else store.commit("setQueueAndShuffle", list);
-
-            pages.goToPage("Player");
+            if (request.type === "S") {
+                store.commit("setPlaylist", {
+                    items: list,
+                    list: playlist.value?.list,
+                    shuffle: true,
+                });
+                pages.goToPage("Player");
+            } else if (request.i === null) {
+                store.commit("setPlaylist", {
+                    items: list,
+                    list: playlist.value?.list,
+                });
+                pages.goToPage("Player");
+            } else {
+                store.commit("setPlaylist", {
+                    items: list,
+                    cursor: request.i,
+                    list: playlist.value?.list,
+                });
+            }
         });
 
         return {
@@ -84,17 +118,28 @@ export default {
             },
             playlist,
             items,
+            currentVideo,
+            isCurrentPlaylist,
             play() {
-                playRequest.value = "P";
+                playRequest.value = {
+                    i: null,
+                    type: "P",
+                };
             },
             shuffle() {
-                playRequest.value = "S";
+                playRequest.value = {
+                    type: "S",
+                    i: null,
+                };
             },
             cleanup() {
                 playRequest.value = null;
             },
-            playFromPosition() {
-                playRequest.value = "P";
+            playFromPosition(index: number) {
+                playRequest.value = {
+                    i: index,
+                    type: "P",
+                };
             },
         };
     },
@@ -122,6 +167,30 @@ export default {
         text-align: center;
         font-size: 30px;
         line-height: 32px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    &__text {
+        position: relative;
+    }
+    &__holder {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+
+        width: calc(100% - 12px);
+        height: calc(100% - 12px);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background-color: rgba($color: #fff, $alpha: 0.5);
+    }
+    &__loading {
+        animation: rotation 1s linear infinite;
     }
     &__buttons {
 
@@ -149,6 +218,15 @@ export default {
     to {
         opacity: 1;
         transform: translateY(0px);
+    }
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
     }
 }
 </style>

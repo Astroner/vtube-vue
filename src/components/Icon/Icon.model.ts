@@ -5,3 +5,4 @@ export type Name =
     | "pause"
     | "play"
     | "search"
+    | "loading"

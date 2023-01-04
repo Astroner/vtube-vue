@@ -5,6 +5,7 @@
   <pause v-else-if="name === 'pause'" :style="style" :className="className" />
   <play v-else-if="name === 'play'" :style="style" :className="className" />
   <search v-else-if="name === 'search'" :style="style" :className="className" />
+  <loading v-else-if="name === 'loading'" :style="style" :className="className" />
 </template>
 
 <script lang="ts">
@@ -17,10 +18,11 @@ import Next from "./Next.icon.vue";
 import Back from "./Back.icon.vue";
 import Pause from "./Pause.icon.vue";
 import Search from "./Search.icon.vue";
+import Loading from "./Loading.icon.vue";
 
 export default defineComponent({
   components: {
-    List, Play, Next, Back, Pause, Search,
+    List, Play, Next, Back, Pause, Search, Loading,
   },
   props: {
     name: {

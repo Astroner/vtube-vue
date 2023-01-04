@@ -36,11 +36,22 @@ export const queue: Module<QueueState, Modules> = {
     setQueue(state, items: QueueItem[]) {
       state.items = items;
       state.cursor = 0;
+      state.currentPlaylist = null;
+      state.currentRequestId++;
     },
-    setQueueAndShuffle(state, items: QueueItem[]) {
-      const shuffle = items.slice(0);
-      state.items = shuffle.sort(() => Math.random() * 2 - 1);
-      state.cursor = 0;
+    setPlaylist(
+      state, 
+      payload: { list: string, items: QueueItem[], shuffle?: boolean, cursor: number | null },
+    ) {
+      state.currentRequestId++;
+      if (!payload.shuffle) {
+        state.items = payload.items;
+      } else {
+        const shuffle = payload.items.slice(0);
+        state.items = shuffle.sort(() => Math.random() * 2 - 1);
+      }
+      state.currentPlaylist = payload.list;
+      state.cursor = payload.cursor ? payload.cursor : 0;
     },
     registerLoading(state) {
       state.isLoading = true;
@@ -76,7 +87,11 @@ export const queue: Module<QueueState, Modules> = {
 
       if (store.state.currentRequestId !== requestId) return;
 
-      store.commit('setQueue', playlist.list.sort(() => Math.random() * 2 - 1));
+      store.commit("setPlaylist", {
+        items: playlist.list,
+        list: playlist.list,
+        shuffle: payload.shuffle,
+      });
       store.commit('completeLoading');
     },
   },
