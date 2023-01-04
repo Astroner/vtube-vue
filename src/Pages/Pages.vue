@@ -27,12 +27,16 @@
       </template>
     </Menu>
   </div>
+  <!-- TODO: remove this shit with desktop version -->
   <div class="pages__buttons">
     <Button @click="nextPage">
       Next page
     </Button>
-    <Button @click="prevPage">
+    <Button style="margin-bottom: 20px" @click="prevPage">
       Prev page
+    </Button>
+    <Button v-for="item of shortcuts" :key="item.name" @click="handleMenu(item.value)">
+      {{ item.name }}
     </Button>
   </div>
 </template>
@@ -149,6 +153,8 @@ export default defineComponent({
     position: fixed;
     left: 0;
     top: 0;
+
+    width: 200px;
 
     @media screen and (max-width: 525px) {
       display: none;

@@ -44,6 +44,7 @@
     >
       <source :src="media.src" :mime="media.mime" />
     </audio>
+    <!-- TODO: remove this shit with desktop version -->
     <div class="player__controls">
       <div class="player__volume">
         Volume:
@@ -51,7 +52,10 @@
       <input 
         type="number" 
         :value="volume * 1000" 
-        @input="e => { e.preventDefault(); e.stopPropagation(); volume = e.target.value / 1000 }" 
+        @input="e => { 
+          e.preventDefault(); 
+          volume = e.target.value > 1000 ? 1 : e.target.value < 0 ? 0 : e.target.value / 1000 
+        }" 
       />
     </div>
   </div>
@@ -138,9 +142,9 @@ export default defineComponent({
       else audio.value.pause();
     });
 
-    watch(volume, (volumeValue) => {
-      if (!audio.value) return;
-      audio.value.volume = volumeValue;
+    watch([volume, audio], ([volumeValue, el]) => {
+      if (!el) return;
+      el.volume = volumeValue;
     });
 
     watch(isPlaying, (value) => {
@@ -364,7 +368,7 @@ export default defineComponent({
   &__controls {
     position: fixed;
     left: 0;
-    top: 100px;
+    top: 200px;
 
     input {
       display: block;

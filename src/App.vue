@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO: remove this nesting with desktop version -->
   <div class="app__container">
     <div class="app__pages">
       <pages>
