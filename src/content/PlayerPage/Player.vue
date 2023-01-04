@@ -44,6 +44,16 @@
     >
       <source :src="media.src" :mime="media.mime" />
     </audio>
+    <div class="player__controls">
+      <div class="player__volume">
+        Volume:
+      </div>
+      <input 
+        type="number" 
+        :value="volume * 1000" 
+        @input="e => { e.preventDefault(); e.stopPropagation(); volume = e.target.value / 1000 }" 
+      />
+    </div>
   </div>
 </template>
 
@@ -81,7 +91,8 @@ export default defineComponent({
     const progress = ref(0);
     const lastProgressChange = ref<null | number>(null);
     const playTouched = ref(false);
-
+    const volume = ref<number>(1);
+    
     const formattedLastProgress = computed(() => {
       if (!lastProgressChange.value) return null;
 
@@ -127,6 +138,11 @@ export default defineComponent({
       else audio.value.pause();
     });
 
+    watch(volume, (volumeValue) => {
+      if (!audio.value) return;
+      audio.value.volume = volumeValue;
+    });
+
     watch(isPlaying, (value) => {
       if (!value) playTouched.value = true;
     });
@@ -149,6 +165,8 @@ export default defineComponent({
       progress,
       formattedLastProgress,
       playTouched,
+      volume,
+
       handleProgress: (e: MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -342,6 +360,22 @@ export default defineComponent({
   &__time {
     font-size: 30px;
     user-select: none;
+  }
+  &__controls {
+    position: fixed;
+    left: 0;
+    top: 100px;
+
+    input {
+      display: block;
+    }
+
+    @media screen and (max-width: 525px) {
+      display: none;
+    }
+  }
+  &__volume {
+    font-size: 24px;
   }
 }
 

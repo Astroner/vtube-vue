@@ -25,8 +25,15 @@
           </span>
         </menu-item>
       </template>
-
     </Menu>
+  </div>
+  <div class="pages__buttons">
+    <Button @click="nextPage">
+      Next page
+    </Button>
+    <Button @click="prevPage">
+      Prev page
+    </Button>
   </div>
 </template>
 
@@ -37,6 +44,7 @@ import {
 
 import { Name } from '@/components/Icon/Icon.model';
 import Icon from '@/components/Icon/Icon.vue';
+import Button from '@/components/Button.vue';
 
 import Contents from './components/Contents.vue';
 import Menu from './components/Menu.vue';
@@ -49,6 +57,7 @@ export default defineComponent({
     MenuItem,
     Contents,
     Icon,
+    Button,
   },
   setup() {
     let ID = 0;
@@ -108,7 +117,7 @@ export default defineComponent({
     return {
       nextPage: () => {
         if (typeof currentIndex.value === "string") currentIndex.value = prevNumericIndex.value ?? 0;
-        else if (currentIndex.value < ID) currentIndex.value++;
+        else if (currentIndex.value < ID - 1) currentIndex.value++;
       },
       prevPage: () => {
         if (typeof currentIndex.value === "string") currentIndex.value = prevNumericIndex.value ?? 0;
@@ -126,13 +135,24 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.pages__root {
-  min-height: 100vh;
+.pages {
+  &__root {
+    min-height: 100%;
 
-  max-width: 100vw;
+    max-width: 100%;
 
-  overflow: hidden;
+    overflow: hidden;
 
-  position: relative;
+    position: relative;
+  }
+  &__buttons {
+    position: fixed;
+    left: 0;
+    top: 0;
+
+    @media screen and (max-width: 525px) {
+      display: none;
+    }
+  }
 }
 </style>

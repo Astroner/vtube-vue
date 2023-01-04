@@ -1,12 +1,16 @@
 <template>
-  <pages>
-    <player-page />
-    <music-recommendations-page />
-    <playlists-page />
-    <search-page />
-    <profile-page />
-    <playlist-page />
-  </pages>
+  <div class="app__container">
+    <div class="app__pages">
+      <pages>
+        <player-page />
+        <music-recommendations-page />
+        <playlists-page />
+        <search-page />
+        <profile-page />
+        <playlist-page />
+      </pages>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -33,6 +37,26 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.app {
+  &__pages {
+    width: 100vw;
+    height: 100vh;
 
+    @media screen and (min-width: 525px) {
+      width: 425px;
+      height: 700px;
+    }
+  }
+  &__container {
+    width: 100vw;
+    height: 100vh;
+
+    @media screen and (min-width: 525px) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
 </style>

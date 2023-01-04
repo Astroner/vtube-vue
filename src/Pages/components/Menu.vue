@@ -153,6 +153,7 @@ export default defineComponent({
       menuCoordinates,
       moveCoordinates,
       initMenu: (e: TouchEvent) => {
+        if (!e.touches) return;
         const x = e.touches[0].pageX;
         const y = e.touches[0].pageY;
 
