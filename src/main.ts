@@ -7,4 +7,6 @@ import { store, storeInjectionKey } from './store';
 import 'normalize.css';
 import './index.scss';
 
+import './registerServiceWorker';
+
 createApp(App).use(store, storeInjectionKey).use(Vue3TouchEvents).mount('#app');
