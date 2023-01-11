@@ -1,5 +1,11 @@
 <template>
-  <page name="Music recommendations" title="Music">
+  <page 
+    name="Music recommendations" 
+    title="Music" 
+    shortcut 
+    shortcut-icon="favorite" 
+    :shortcut-icon-left-shift="-1"
+  >
     <div v-if="categories">
       <div v-for="category of categories" :key="category.title" class="music__category">
         <h3>

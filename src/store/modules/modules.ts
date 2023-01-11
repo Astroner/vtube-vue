@@ -4,6 +4,9 @@ export interface QueueItem {
   title: string,
   display: YTImage[],
   code: string,
+  saved?: {
+    thumbnail: Blob,
+  }
 }
 
 export interface QueueState {

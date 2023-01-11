@@ -6,3 +6,5 @@ export type Name =
     | "play"
     | "search"
     | "loading"
+    | "download"
+    | "favorite"

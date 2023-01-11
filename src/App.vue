@@ -3,11 +3,12 @@
   <div class="app__container">
     <div class="app__pages">
       <pages>
-        <player-page />
         <music-recommendations-page />
         <playlists-page />
         <search-page />
         <profile-page />
+        <player-page />
+        <saved-page />
         <playlist-page />
       </pages>
     </div>
@@ -23,6 +24,7 @@ import SearchPage from './content/SearchPage/SearchPage.vue';
 import PlaylistsPage from './content/PlaylistsPage.vue';
 import Pages from './Pages/Pages.vue';
 import PlaylistPage from './content/PlaylistPage.vue';
+import SavedPage from './content/SavedPage.vue';
 
 export default defineComponent({
   components: {
@@ -33,6 +35,7 @@ export default defineComponent({
     SearchPage,
     PlaylistsPage,
     PlaylistPage,
+    SavedPage,
   },
   name: 'App',
 });

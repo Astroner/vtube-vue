@@ -6,6 +6,8 @@
   <play v-else-if="name === 'play'" :style="style" :className="className" />
   <search v-else-if="name === 'search'" :style="style" :className="className" />
   <loading v-else-if="name === 'loading'" :style="style" :className="className" />
+  <download v-else-if="name === 'download'" :style="style" :className="className" />
+  <favorite v-else-if="name === 'favorite'" :style="style" :className="className" />
 </template>
 
 <script lang="ts">
@@ -19,10 +21,12 @@ import Back from "./Back.icon.vue";
 import Pause from "./Pause.icon.vue";
 import Search from "./Search.icon.vue";
 import Loading from "./Loading.icon.vue";
+import Download from "./Download.icon.vue";
+import Favorite from "./Favorite.icon.vue";
 
 export default defineComponent({
   components: {
-    List, Play, Next, Back, Pause, Search, Loading,
+    List, Play, Next, Back, Pause, Search, Loading, Download, Favorite,
   },
   props: {
     name: {

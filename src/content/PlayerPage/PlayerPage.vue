@@ -1,19 +1,38 @@
 <template>
   <page name="Player" shortcut shortcutIcon="play" hidden className="player-page__root">
-    <player margin="10px 0 20px" :code="currentItem?.code" @ended="nextItem" />
+    <player
+      margin="10px 0 20px"
+      :code="currentItem?.code"
+      @ended="nextItem"
+      :saved="!!currentItem?.saved" 
+    />
     <div class="player-page__queue">
       <div v-show="queue.length === 0" class="player-page__placeholder">
         Empty Queue
       </div>
-      <display-video 
+      <div
         v-for="(item, index) of queue"
         :key="item.code"
-        :active="item.code === currentItem.code"
-        @click="setCursor(index)"
-        :display="item.display"
-        :code="item.code"
-        :title="item.title"
-      />
+        class="player-page__item"
+      >
+        <display-video 
+          v-if="!item.saved"
+          :active="item.code === currentItem.code"
+          @click="setCursor(index)"
+          :display="item.display"
+          :code="item.code"
+          :title="item.title"
+        />
+        <saved-video
+          v-else
+          :active="item.code === currentItem.code"
+          @click="setCursor(index)"
+          :code="item.code"
+          :title="item.title"
+          :thumbnail="item.saved.thumbnail"
+          disable-menu
+        />
+      </div>
     </div>
   </page>
 </template>
@@ -24,11 +43,14 @@ import { computed, defineComponent } from "vue";
 import Page from "@/Pages/components/Page.vue";
 import { useStore } from "@/store";
 import DisplayVideo from "@/components/DisplayVideo.vue";
+import SavedVideo from "@/components/SavedVideo.vue";
 
 import Player from "./Player.vue";
 
 export default defineComponent({
-  components: { Page, Player, DisplayVideo },
+  components: {
+ Page, Player, DisplayVideo, SavedVideo, 
+},
   setup() {
     const store = useStore();
 
@@ -71,6 +93,13 @@ export default defineComponent({
     color: #919191;
 
     margin-top: 10px;
+  }
+  &__item {
+    width: 100%;
+
+    &:not(:last-child) {
+      margin-bottom: 5px;
+    }
   }
 }
 </style>

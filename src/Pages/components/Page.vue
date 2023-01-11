@@ -39,16 +39,18 @@ export default defineComponent({
     shortcutIcon: String as PropType<Name>,
     title: [Boolean, String],
     className: String,
+    shortcutIconLeftShift: Number,
   },
   setup(props, ctx) {
     const pagesAPI = inject(PagesAPIKey, PagesAPIDefault);
-
+    
     const id = uuid();
     const pageIndex = pagesAPI.register(id, {
       shortcut: props.shortcut,
       shortcutIcon: props.shortcutIcon,
       hidden: props.hidden,
       name: props.name,
+      leftShift: props.shortcutIconLeftShift,
     });
 
     const isActive = computed(() => pageIndex === pagesAPI.currentIndex.value);

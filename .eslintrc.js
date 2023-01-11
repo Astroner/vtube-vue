@@ -27,5 +27,7 @@ module.exports = {
     'vuejs-accessibility/label-has-for': 'off',
     'no-trailing-spaces': 'off',
     indent: 'off',
+    'no-useless-constructor': 'off',
+    'no-underscore-dangle': 'off',
   },
 };

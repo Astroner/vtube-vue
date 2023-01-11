@@ -236,7 +236,7 @@ export default defineComponent({
     animation: pages__pop-in .2s ease-out forwards;
 
     background: rgb(255,255,255);
-    background: radial-gradient(circle, rgba(#fff, .5) 0%, rgba(#fff, 0) 100%);
+    background: radial-gradient(circle, rgba(#fff, .8) 0%, rgba(#fff, 0) 100%);
   }
 }
 

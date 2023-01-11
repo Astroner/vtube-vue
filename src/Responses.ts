@@ -36,6 +36,7 @@ export interface MediaFormat {
     itag: number,
     mime: string,
     quality: string,
+    contentLength: number,
 }
 
 export interface MediaInfo {

@@ -76,15 +76,17 @@ import { env } from '@/env';
 import { getMidItem } from '@/helpers/functions/getMidItem';
 import { asyncComputed } from '@/helpers/hooks/asyncComputed';
 import Icon from '@/components/Icon/Icon.vue';
+import { getAudio, getSavedInfo } from '@/music-storage';
 
 export default defineComponent({
   components: { Icon },
   props: {
     code: String,
     margin: String,
+    saved: Boolean,
   },
   setup(props, { emit }) {
-    const { code } = toRefs(props);
+    const { code, saved } = toRefs(props);
 
     const doubleClickThreshold = 220;
     let prevTimestamp = 0;
@@ -116,6 +118,18 @@ export default defineComponent({
     const [, media] = asyncComputed((status) => {
       if (!code.value) return "EXIT";
 
+      if (saved.value) {
+        return getAudio(code.value)
+          .then((blob) => {
+            if (!blob || !status.isActive) return "EXIT";
+            return {
+              src: URL.createObjectURL(blob),
+              mime: blob.type,
+              blob: true,
+            };
+          });
+      }
+
       return getFormats(code.value, "audio")
         .then((formats) => {
           if (!status.isActive) return "EXIT";
@@ -127,13 +141,47 @@ export default defineComponent({
           return {
             src: url.toString(),
             mime: midFormat.mime,
+            blob: false,
           };
         });
     });
 
-    const [, info] = asyncComputed(() => {
+    watch(media, (mediaValue, _, onCleanup) => {
+      if (mediaValue?.blob) {
+        onCleanup(() => {
+          URL.revokeObjectURL(mediaValue.src);
+        });
+      }
+    });
+
+    const [, info] = asyncComputed(async () => {
       if (!code.value) return "EXIT";
-      return getInfo(code.value);
+      if (saved.value) {
+        const savedInfo = await getSavedInfo(code.value);
+
+        if (!savedInfo) return "EXIT";
+        return {
+          title: savedInfo.title,
+          displayImage: [{
+            url: URL.createObjectURL(savedInfo.thumbnail),
+            width: 0,
+            height: 0,
+          }],
+          blob: true,
+        };
+      }
+      return {
+        ...(await getInfo(code.value)),
+        blob: false,
+      };
+    });
+
+    watch(info, (infoValue, _, onCleanup) => {
+      if (infoValue?.blob) {
+        onCleanup(() => {
+          URL.revokeObjectURL(infoValue.displayImage[0].url);
+        });
+      }
     });
 
     watchEffect(() => {

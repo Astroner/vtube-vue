@@ -17,7 +17,10 @@
         >
           <Icon
             v-if="shortcut.icon"
-            :style="{ transform: 'scale(.7)', marginLeft: '-3px' }"
+            :style="{ 
+              transform: 'scale(.7)', 
+              marginLeft: shortcut.leftShift ? shortcut.leftShift : -3 
+            }"
             :name="shortcut.icon"
           />
           <span v-else>
@@ -70,7 +73,12 @@ export default defineComponent({
     const nameIdMap = new Map<string, number | string>();
 
     const currentIndex = ref<number | string>(1);
-    const shortcuts = ref<Array<{ name: string, icon?: Name, value: string | number }>>([]);
+    const shortcuts = ref<Array<{ 
+      name: string, 
+      icon?: Name, 
+      value: string | number, 
+      leftShift?: number 
+    }>>([]);
     const content = ref(new Array<{ label: string, index: number }>());
     const pagePayload = ref<any>(null);
 
@@ -99,6 +107,7 @@ export default defineComponent({
               name: options.name,
               icon: options.shortcutIcon,
               value: currentID,
+              leftShift: options.leftShift,
             });
           }
         }

@@ -1,5 +1,5 @@
 <template>
-  <page name="Search" shortcut shortcutIcon="search" title>
+  <page name="Search" title>
     <div class="search__request">
       - I'm trying to find <span
         tabindex="0"

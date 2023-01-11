@@ -7,6 +7,7 @@ export interface RegisterOptions {
     shortcutIcon?: Name
     hidden?: boolean;
     name?: string;
+    leftShift?: number;
 }
 
 export interface PagesAPI {
