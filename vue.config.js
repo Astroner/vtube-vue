@@ -9,7 +9,6 @@ module.exports = defineConfig({
     workboxPluginMode: 'GenerateSW',
     workboxOptions: {
       swDest: 'service-worker.js',
-      navigateFallback: "/index.html",
     },
     manifestOptions: {
       short_name: "VTube",
