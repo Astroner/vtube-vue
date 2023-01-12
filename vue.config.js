@@ -5,7 +5,7 @@ module.exports = defineConfig({
   lintOnSave: false,
   pwa: {
     name: "VTube - video player",
-    themeColor: "#000000",
+    themeColor: "#ffffff",
     workboxPluginMode: "GenerateSW",
     manifestOptions: {
       short_name: "VTube",
