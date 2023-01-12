@@ -3,8 +3,6 @@
 import { register } from 'register-service-worker';
 import { env } from './env';
 
-console.log(env);
-
 if (env.NODE_ENV === 'production') {
   register(`/service-worker.js`, {
     ready() {
