@@ -29,5 +29,7 @@ module.exports = {
     indent: 'off',
     'no-useless-constructor': 'off',
     'no-underscore-dangle': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    'class-methods-use-this': 'off',
   },
 };

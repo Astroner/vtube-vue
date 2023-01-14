@@ -1,45 +1,41 @@
-import { DBTable } from "./db-table.class";
+import { DBModel } from "./db-model.class";
+import { initDB } from "./init-db";
 
-export class DB <Tables extends { [key: string]: DBTable<any> }> {
+export class DB <Model extends DBModel<any, any>> {
+    static drop(dbName: string) {
+        window.indexedDB.deleteDatabase(dbName);
+    }
+
     private db: Promise<IDBDatabase>;
 
-    private subscriptions: Array<(changedTable: keyof Tables) => void> = [];
+    private subscriptions: Array<(changedTable: keyof Model['tables']) => void> = [];
 
     constructor(
         private dbName: string, 
-        private dbVersion: number,
-        private tables: Tables,
+        private model: Model,
     ) {
-        this.db = new Promise<IDBDatabase>((resolve, reject) => {
-            const request = window.indexedDB.open(dbName, dbVersion);
-            request.onsuccess = () => {
-                resolve(request.result);
-            };
-            request.onerror = () => {
-                reject(request.error);
-            };
-            request.onupgradeneeded = () => {
-                const db = request.result;
-                for (const key in tables) {
-                    if (Object.prototype.hasOwnProperty.call(tables, key)) {
-                        db.createObjectStore(key);
-                    }
-                }
-            };
-        });
+        this.db = initDB(dbName, model);
     }
 
-    async put<K extends keyof Tables>(table: K, key: string, value: Tables[K]['type']) {
+    async put<K extends keyof Model['tables']>(
+        table: K, 
+        key: Model['tables'][K]['autoKey'] extends true ? null : string, 
+        value: Model['tables'][K]['type'],
+    ) {
         const db = await this.db;
 
         const transaction = db.transaction(table as string, "readwrite");
 
         const storage = transaction.objectStore(table as string);
-        storage.put(value, key);
+        await new Promise((resolve, reject) => {
+            const putReq = storage.put(value, key ?? undefined);
+            putReq.onsuccess = () => resolve(null);
+            putReq.onerror = () => reject();
+        });
         this.update(table);
     }
 
-    async getAll<K extends keyof Tables>(table: K): Promise<Tables[K]['type'][]> {
+    async getAll<K extends keyof Model['tables']>(table: K): Promise<Model['tables'][K]['type'][]> {
         const db = await this.db;
 
         const transaction = db.transaction(table as string, "readonly");
@@ -53,7 +49,7 @@ export class DB <Tables extends { [key: string]: DBTable<any> }> {
         });
     }
 
-    async get<K extends keyof Tables>(table: K, key: string): Promise<Tables[K]['type'] | null> {
+    async get<K extends keyof Model['tables']>(table: K, key: string): Promise<Model['tables'][K]['type'] | null> {
         const db = await this.db;
 
         const transaction = db.transaction(table as string, "readonly");
@@ -67,7 +63,7 @@ export class DB <Tables extends { [key: string]: DBTable<any> }> {
         });
     }
 
-    async has<K extends keyof Tables>(table: K, key: string): Promise<boolean> {
+    async has<K extends keyof Model['tables']>(table: K, key: string): Promise<boolean> {
         const db = await this.db;
 
         const transaction = db.transaction(table as string, "readonly");
@@ -81,7 +77,7 @@ export class DB <Tables extends { [key: string]: DBTable<any> }> {
         });
     }
 
-    async delete<K extends keyof Tables>(table: K, key: string) {
+    async delete<K extends keyof Model['tables']>(table: K, key: string) {
         const db = await this.db;
 
         const transaction = db.transaction(table as string, "readwrite");
@@ -96,7 +92,7 @@ export class DB <Tables extends { [key: string]: DBTable<any> }> {
         });
     }
 
-    async deleteAll<K extends keyof Tables>(table: K) {
+    async deleteAll<K extends keyof Model['tables']>(table: K) {
         const db = await this.db;
 
         const transaction = db.transaction(table as string, "readwrite");
@@ -111,7 +107,7 @@ export class DB <Tables extends { [key: string]: DBTable<any> }> {
         });
     }
 
-    subscribe(cb: (changedTable: keyof Tables) => void) {
+    subscribe(cb: (changedTable: keyof Model['tables']) => void) {
         this.subscriptions.push(cb);
 
         return {
@@ -119,7 +115,7 @@ export class DB <Tables extends { [key: string]: DBTable<any> }> {
         };
     }
 
-    private update(table: keyof Tables) {
+    private update(table: keyof Model['tables']) {
         for (const cb of this.subscriptions) {
             cb(table);
         }

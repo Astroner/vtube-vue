@@ -1,16 +1,16 @@
-import { DBTable } from "./db-table.class";
+import { DBModel } from "./db-model.class";
 import { DB } from "./db.class";
 
 export class DBObservable<
-    Tables extends { [key: string]: DBTable<any> }, 
-    TableKey extends keyof Tables,
+    Model extends DBModel<Record<string, any>, any>, 
+    TableKey extends keyof Model['tables'],
 > {
-    private subscriptions: Array<(next: Tables[TableKey]['type'][]) => void> = [];
+    private subscriptions: Array<(next: Model['tables'][TableKey]['type'][]) => void> = [];
 
-    private value: Promise<Tables[TableKey]['type'][]>;
+    private value: Promise<Model['tables'][TableKey]['type'][]>;
 
     constructor(
-        private db: DB<Tables>,
+        private db: DB<Model>,
         private tableKey: TableKey,
     ) {
         this.value = this.db.getAll(tableKey);
@@ -25,7 +25,7 @@ export class DBObservable<
         return this.value;
     }
 
-    subscribe(cb: (next: Tables[TableKey]['type'][]) => void) {
+    subscribe(cb: (next: Model['tables'][TableKey]['type'][]) => void) {
         this.subscriptions.push(cb);
 
         return {

@@ -76,7 +76,7 @@ import { env } from '@/env';
 import { getMidItem } from '@/helpers/functions/getMidItem';
 import { asyncComputed } from '@/helpers/hooks/asyncComputed';
 import Icon from '@/components/Icon/Icon.vue';
-import { getAudio, getSavedInfo } from '@/music-storage';
+import { musicStorage } from '@/music-storage';
 
 export default defineComponent({
   components: { Icon },
@@ -119,7 +119,7 @@ export default defineComponent({
       if (!code.value) return "EXIT";
 
       if (saved.value) {
-        return getAudio(code.value)
+        return musicStorage.getAudio(code.value)
           .then((blob) => {
             if (!blob || !status.isActive) return "EXIT";
             return {
@@ -157,7 +157,7 @@ export default defineComponent({
     const [, info] = asyncComputed(async () => {
       if (!code.value) return "EXIT";
       if (saved.value) {
-        const savedInfo = await getSavedInfo(code.value);
+        const savedInfo = await musicStorage.getSavedInfo(code.value);
 
         if (!savedInfo) return "EXIT";
         return {
@@ -416,7 +416,7 @@ export default defineComponent({
   &__controls {
     position: fixed;
     left: 0;
-    top: 200px;
+    top: 300px;
 
     input {
       display: block;

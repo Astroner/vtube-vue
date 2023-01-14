@@ -6,9 +6,9 @@
         <music-recommendations-page />
         <playlists-page />
         <search-page />
-        <profile-page />
         <player-page />
         <saved-page />
+        <profile-page />
         <playlist-page />
       </pages>
     </div>

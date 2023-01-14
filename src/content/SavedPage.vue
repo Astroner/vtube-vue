@@ -28,15 +28,15 @@
 </template>
 
 <script lang="ts">
-import { useSaved } from '@/music-storage/useSaved';
+import { computed } from 'vue';
+import { useSaved } from '@/music-storage/use-saved';
 import Page from '@/Pages/components/Page.vue';
 import Button from '@/components/Button.vue';
 import SavedVideo from '@/components/SavedVideo.vue';
 import { useStore } from '@/store';
 import { usePages } from '@/Pages/hooks/usePages';
 import { QueueItem } from '@/store/modules/modules';
-import { deleteAllSaved, deleteSaved } from '@/music-storage';
-import { computed } from 'vue';
+import { musicStorage } from '@/music-storage';
 
 export default {
     components: { Page, SavedVideo, Button },
@@ -99,13 +99,13 @@ export default {
                 });
             },
             remove(code: string) {
-                deleteSaved(code);
+                musicStorage.deleteSaved(code);
                 if (activeAudio.value === code) {
                     store.commit("next");
                 }
             },
             clear() {
-                deleteAllSaved();
+                musicStorage.deleteAllSaved();
             },
         };
     },

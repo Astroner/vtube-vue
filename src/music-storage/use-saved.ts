@@ -1,5 +1,6 @@
 import { ref, watchEffect } from "vue";
-import { getAllSaved, SavedVideo, subscribe } from ".";
+import { musicStorage } from ".";
+import { SavedVideo } from "./music-storage.model";
 
 export const useSaved = () => {
     const value = ref<null | SavedVideo[]>(null);
@@ -7,7 +8,7 @@ export const useSaved = () => {
     watchEffect((onCleanup) => {
         let mounted = true;
 
-        getAllSaved()
+        musicStorage.getAllSaved()
             .then((val) => {
                 if (!mounted) return;
                 value.value = val;
@@ -19,7 +20,7 @@ export const useSaved = () => {
     });
 
     watchEffect((onCleanup) => {
-        const sub = subscribe((next) => {
+        const sub = musicStorage.all.subscribe((next) => {
             value.value = next;
         });
 

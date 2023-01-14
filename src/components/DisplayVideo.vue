@@ -45,8 +45,9 @@ import {
  PropType, toRef, Ref, ref, SetupContext, watchEffect, computed, 
 } from "vue";
 import { YTImage } from "@/Responses";
-import { useSaved } from "@/music-storage/useSaved";
-import { saveMusic } from "@/music-storage";
+import { useSaved } from "@/music-storage/use-saved";
+import { musicStorage } from "@/music-storage";
+import { useIsDownloading } from "@/helpers/hooks/use-is-downloading";
 
 import DisplayImage from './DisplayImage.vue';
 import Button from './Button.vue';
@@ -73,8 +74,9 @@ export default {
         const code: Ref<string> = toRef(props, 'code');
 
         const menuState = ref(false);
-        const isDownloading = ref(false);
-        
+
+        const isDownloading = useIsDownloading(code);
+
         const elRef = ref<HTMLDivElement | null>(null);
         
         const saved = useSaved();
@@ -111,9 +113,7 @@ export default {
                 menuState.value = false;
             },
             async save() {
-                isDownloading.value = true;
-                await saveMusic(code.value);
-                isDownloading.value = false;
+                musicStorage.save(code.value);
             },
         };
     },
