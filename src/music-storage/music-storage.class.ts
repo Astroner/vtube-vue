@@ -36,6 +36,7 @@ export class MusicStorage {
 
     public queue = new DBObservable(this.storage, "queue");
 
+    // TODO: delete this observable coz it costs tooo much
     public all = new DBObservable(this.storage, "all");
 
     constructor() {
