@@ -1,4 +1,4 @@
-import { getFormats, getInfo } from "@/api/main/player";
+import { fetchThumbnail, getFormats, getInfo } from "@/api/main/player";
 import { axios } from "@/helpers/axios";
 import { getMidItem } from "@/helpers/functions/getMidItem";
 
@@ -18,9 +18,7 @@ export const fetchAudio = async (code: string): Promise<FetchedAudio> => {
     const format = getMidItem(formats);
 
     const [thumbnail, audio] = await Promise.all([
-        axios.get<Blob>(`/player/thumbnail/${code}/`, {
-            responseType: "blob",
-        }).then((res) => res.data),
+        fetchThumbnail(code),
         axios.get<Blob>(`/player/${code}/`, {
             params: {
                 itag: format.itag,

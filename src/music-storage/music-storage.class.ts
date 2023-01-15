@@ -3,9 +3,9 @@ import { DBObservable } from "@/helpers/db/db-observable.class";
 import { DBTable } from "@/helpers/db/db-table.class";
 import { DB } from "@/helpers/db/db.class";
 import { DownloadQueue } from "./download-queue.class";
+import { fetchPlaylist } from "./fetch-playlist";
 import { 
-    SavedPlaylist, 
-    SavedPlaylistVideoRelationship, 
+    SavedPlaylist,
     SavedVideo,
 } from "./music-storage.model";
 
@@ -20,7 +20,6 @@ export class MusicStorage {
                 all: new DBTable<SavedVideo>(),
                 audios: new DBTable<Blob>(),
                 playlists: new DBTable<SavedPlaylist>(),
-                playlistVideos: new DBTable<SavedPlaylistVideoRelationship>(),
                 queue: new DBTable<string>(),
             },
             (data) => ({
@@ -31,7 +30,9 @@ export class MusicStorage {
 
     private storage = new DB("vtube-storage", this.storageModel);
 
-    private downloadQueue = new DownloadQueue(10);
+    private downloadQueue = new DownloadQueue(2);
+
+    public savedPlaylists = new DBObservable(this.storage, "playlists");
 
     public queue = new DBObservable(this.storage, "queue");
 
@@ -61,7 +62,21 @@ export class MusicStorage {
             .then((queue) => queue.forEach((item) => this.downloadQueue.add(item)));
     }
 
-    async save(code: string) {
+    getPlaylist(list: string) {
+        return this.storage.get("playlists", list);
+    }
+
+    async savePlaylist(list: string) {
+        const playlist = await fetchPlaylist(list);
+
+        this.storage.put("playlists", playlist.list, playlist);
+
+        for (const video of playlist.videos) {
+            this.saveAudio(video);
+        }
+    }
+
+    async saveAudio(code: string) {
         if (await this.isAudioDownloaded(code)) return;
         await this.storage.put("queue", code, code);
         this.downloadQueue.add(code);
@@ -94,6 +109,27 @@ export class MusicStorage {
         return Promise.all([
             this.storage.deleteAll("all"),
             this.storage.deleteAll("audios"),
+            this.storage.deleteAll("playlists"),
         ]);
+    }
+
+    async deletePlaylist(list: string) {
+        const playlists = await this.savedPlaylists.getValue();
+
+        const current = playlists.find((item) => item.list === list);
+
+        if (!current) return;
+
+        this.storage.delete('playlists', list);
+
+        for (const code of current.videos) {
+            if (playlists.find((item) => {
+                if (item.list === list) return false;
+                return !!item.videos.find((vod) => vod === code);
+            })) {
+                continue;
+            }
+            this.deleteSaved(code);
+        }
     }
 }

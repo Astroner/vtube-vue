@@ -3,109 +3,45 @@
     <div class="saved__nothing" v-if="saved?.length === 0">
         Nothing saved yet
     </div>
-    <div v-else-if="saved">
-        <div style="display: flex">
-            <Button @click="play">Play</Button>
-            <Button @click="shuffle" style="margin-left: 10px">Shuffle</Button>
-        </div>
-        <Button style="margin-top: 10px" @click="clear">Clear</Button>
-        <div class="saved__container">
-            <saved-video 
-                v-for="(item, index) of saved"
-                :key="item.code"
-                :code="item.code"
-                :title="item.title"
-                :thumbnail="item.thumbnail" 
-                @click="playFromIndex(index)"
-                :active="item.code === activeAudio"
-            >
-                <Button @click="playFromIndex(index)">Play</Button>
-                <Button @click="remove(item.code)" style="margin-left: 5px">Delete</Button>
-            </saved-video>
-        </div>
+    <display-playlist 
+        v-else
+        title="Everything"
+        :display="[{ url: '/saved-background.jpeg', width: 0, height: 0 }]"
+        @click="open('all')"
+    />
+    <div v-if="savedPlaylists">
+        <saved-playlist
+            v-for="playlist of savedPlaylists"
+            :key="playlist.list"
+            :title="playlist.title"
+            :thumbnail="playlist.thumbnail"
+            @click="open(playlist.list)"
+        />
     </div>
   </page>
 </template>
 
 <script lang="ts">
-import { computed } from 'vue';
 import { useSaved } from '@/music-storage/use-saved';
 import Page from '@/Pages/components/Page.vue';
-import Button from '@/components/Button.vue';
-import SavedVideo from '@/components/SavedVideo.vue';
-import { useStore } from '@/store';
 import { usePages } from '@/Pages/hooks/usePages';
-import { QueueItem } from '@/store/modules/modules';
 import { musicStorage } from '@/music-storage';
+import { useDBObservable } from '@/helpers/hooks/use-db-observable';
+import SavedPlaylist from '@/components/SavedPlaylist.vue';
+import DisplayPlaylist from '@/components/DisplayPlaylist.vue';
 
 export default {
-    components: { Page, SavedVideo, Button },
+    components: { Page, SavedPlaylist, DisplayPlaylist },
     setup() {
-        const saved = useSaved();
-        const store = useStore();
         const pages = usePages();
-
-        const activeAudio = computed<string | null>(
-            () => store.state.queue.items[store.state.queue.cursor]?.code ?? null,
-        );
+        const saved = useSaved();
+        const savedPlaylists = useDBObservable(musicStorage.savedPlaylists);
 
         return {
             saved,
-            activeAudio,
-            play() {
-                if (!saved.value) return;
-                store.commit("setPlaylist", {
-                    list: "saved",
-                    items: saved.value.map<QueueItem>((item) => ({
-                        code: item.code,
-                        title: item.title,
-                        display: [],
-                        saved: {
-                            thumbnail: item.thumbnail,
-                        },
-                    })),
-                });
-                pages.goToPage("Player");
-            },
-            shuffle() {
-                if (!saved.value) return;
-                store.commit("setPlaylist", {
-                    list: "saved",
-                    items: saved.value.map<QueueItem>((item) => ({
-                        code: item.code,
-                        title: item.title,
-                        display: [],
-                        saved: {
-                            thumbnail: item.thumbnail,
-                        },
-                    })),
-                    shuffle: true,
-                });
-                pages.goToPage("Player");
-            },
-            playFromIndex(cursor: number) {
-                if (!saved.value) return;
-                store.commit("setPlaylist", {
-                    list: "saved",
-                    items: saved.value.map<QueueItem>((item) => ({
-                        code: item.code,
-                        title: item.title,
-                        display: [],
-                        saved: {
-                            thumbnail: item.thumbnail,
-                        },
-                    })),
-                    cursor,
-                });
-            },
-            remove(code: string) {
-                musicStorage.deleteSaved(code);
-                if (activeAudio.value === code) {
-                    store.commit("next");
-                }
-            },
-            clear() {
-                musicStorage.deleteAllSaved();
+            savedPlaylists,
+            open(list: string) {
+                pages.goToPage("SavedPlaylist", list);
             },
         };
     },

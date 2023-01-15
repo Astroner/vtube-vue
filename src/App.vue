@@ -10,6 +10,7 @@
         <saved-page />
         <profile-page />
         <playlist-page />
+        <saved-playlist-page />
       </pages>
     </div>
   </div>
@@ -25,6 +26,7 @@ import PlaylistsPage from './content/PlaylistsPage.vue';
 import Pages from './Pages/Pages.vue';
 import PlaylistPage from './content/PlaylistPage.vue';
 import SavedPage from './content/SavedPage.vue';
+import SavedPlaylistPage from './content/SavedPlaylistPage.vue';
 
 export default defineComponent({
   components: {
@@ -36,6 +38,7 @@ export default defineComponent({
     PlaylistsPage,
     PlaylistPage,
     SavedPage,
+    SavedPlaylistPage,
   },
   name: 'App',
 });

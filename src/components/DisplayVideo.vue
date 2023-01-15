@@ -113,7 +113,7 @@ export default {
                 menuState.value = false;
             },
             async save() {
-                musicStorage.save(code.value);
+                musicStorage.saveAudio(code.value);
             },
         };
     },

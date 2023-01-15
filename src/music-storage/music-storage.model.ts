@@ -8,11 +8,7 @@ export type SavedPlaylist = {
     list: string,
     title: string,
     thumbnail: Blob,
-}
-
-export type SavedPlaylistVideoRelationship = {
-    playlist: string,
-    code: string,
+    videos: string[],
 }
 
 export type SaveQueueItem = {

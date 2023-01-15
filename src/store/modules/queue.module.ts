@@ -33,6 +33,12 @@ export const queue: Module<QueueState, Modules> = {
         state.cursor = prev;
       }
     },
+    clear(state) {
+      state.items = [];
+      state.cursor = 0;
+      state.currentRequestId++;
+      state.currentPlaylist = null;
+    },
     setQueue(state, items: QueueItem[]) {
       state.items = items;
       state.cursor = 0;

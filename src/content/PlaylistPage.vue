@@ -20,8 +20,15 @@
         </div>
         <div class="playlist__buttons">
             <Button @click="play">Play</Button>
-            <Button @click="shuffle" style="margin-left: 5px">Shuffle</Button>
+            <Button 
+                @click="save" 
+                :disabled="isDownloaded" 
+                style="margin-left: 10px"
+            >
+                {{ isDownloaded ? "Saved" : "Save"}}
+            </Button>
         </div>
+        <Button @click="shuffle" style="margin-top: 10px">Shuffle</Button>
         <fade-in>
             <div v-if="items" class="playlist__items">
                 <display-video 
@@ -56,6 +63,8 @@ import { useStore } from '@/store';
 import { usePages } from '@/Pages/hooks/usePages';
 import { QueueItem } from '@/store/modules/modules';
 import Icon from '@/components/Icon/Icon.vue';
+import { musicStorage } from '@/music-storage';
+import { useDBObservable } from '@/helpers/hooks/use-db-observable';
 
 export default {
     components: { 
@@ -69,10 +78,15 @@ export default {
     setup() {
         const store = useStore();
         const pages = usePages();
+        const savedPlaylists = useDBObservable(musicStorage.savedPlaylists);
 
         const playlist = ref<PlaylistWithID | null>(null);
         
         const playRequest = ref<null | { type: "P" | "S", i: number | null }>(null);
+
+        const isDownloaded = computed(
+            () => !!savedPlaylists.value?.find((item) => item.list === playlist.value?.list),
+        );
 
         const isCurrentPlaylist = computed(
             () => store.state.queue.currentPlaylist === playlist.value?.list,
@@ -113,13 +127,19 @@ export default {
         });
 
         return {
-            setPayload(payload: PlaylistWithID | null) {
-                playlist.value = payload;
-            },
             playlist,
             items,
             currentVideo,
             isCurrentPlaylist,
+            isDownloaded,
+            save() {
+                if (!playlist.value?.list) return;
+
+                musicStorage.savePlaylist(playlist.value.list);
+            },
+            setPayload(payload: PlaylistWithID | null) {
+                playlist.value = payload;
+            },
             play() {
                 playRequest.value = {
                     i: null,

@@ -14,3 +14,11 @@ export const getInfo = async (code: string) => {
 
   return data;
 };
+
+export const fetchThumbnail = async (code: string) => {
+  const { data } = await axios.get<Blob>(`/player/thumbnail/${code}/`, {
+    responseType: "blob",
+  });
+
+  return data;
+};

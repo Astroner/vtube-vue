@@ -5,6 +5,8 @@ export class DBObservable<
     Model extends DBModel<Record<string, any>, any>, 
     TableKey extends keyof Model['tables'],
 > {
+    type!: Model['tables'][TableKey]['type'][];
+
     private subscriptions: Array<(next: Model['tables'][TableKey]['type'][]) => void> = [];
 
     private value: Promise<Model['tables'][TableKey]['type'][]>;

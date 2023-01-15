@@ -27,3 +27,11 @@ export const getUserPlaylists = async (token: string) => {
 
   return data;
 };
+
+export const fetchThumbnail = async (list: string) => {
+  const { data } = await axios.get<Blob>(`/playlist/thumbnail/${list}/`, {
+    responseType: "blob",
+  });
+
+  return data;
+};

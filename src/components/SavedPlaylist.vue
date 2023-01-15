@@ -1,20 +1,16 @@
 <template>
-  <display-video :code="code" :title="title" :display="display" :active="active">
-    <slot></slot>
-  </display-video>
+  <display-playlist :title="title" :display="display" />
 </template>
 
-<script>
-import { toRefs, computed, watch } from 'vue';
-import DisplayVideo from './DisplayVideo.vue';
+<script lang="ts">
+import {
+ defineComponent, toRefs, computed, watch, 
+} from 'vue';
+import DisplayPlaylist from './DisplayPlaylist.vue';
 
-export default {
-    components: { DisplayVideo },
+export default defineComponent({
+    components: { DisplayPlaylist },
     props: {
-        code: {
-            required: true,
-            type: String,
-        },
         title: {
             required: true,
             type: String,
@@ -23,7 +19,6 @@ export default {
             required: true,
             type: Blob,
         },
-        active: Boolean,
     },
     setup(props) {
         const { thumbnail } = toRefs(props);
@@ -44,5 +39,5 @@ export default {
             display,
         };
     },
-};
+});
 </script>

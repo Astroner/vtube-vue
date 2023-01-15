@@ -1,17 +1,13 @@
 <template>
   <page name="Playlists" title>
     <div v-if="playlists">
-      <div
+      <display-playlist 
         v-for="item of playlists"
         :key="item.list"
-        class="playlists__list"
-        :style="{ backgroundImage: `url(${item.display[item.display.length - 1].url})` }"
+        :title="item.title"
+        :display="item.display"
         @click="play(item)"
-      >
-        <div class="playlists__title">
-          {{ item.title }}
-        </div>
-      </div>
+      />
     </div>
   </page>
 </template>
@@ -26,9 +22,10 @@ import { getMidItem } from "@/helpers/functions/getMidItem";
 import { asyncComputed } from "@/helpers/hooks/asyncComputed";
 import { getUserPlaylists } from "@/api/main/playlists";
 import { PlaylistWithID } from "@/Responses";
+import DisplayPlaylist from "@/components/DisplayPlaylist.vue";
 
 export default defineComponent({
-  components: { Page },
+  components: { Page, DisplayPlaylist },
   setup() {
     const pages = usePages();
     const store = useStore();
