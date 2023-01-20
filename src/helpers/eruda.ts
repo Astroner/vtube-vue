@@ -1,19 +1,23 @@
 import { env } from "@/env";
 import eruda from "eruda";
 
+const isInitiated = env.NODE_ENV === "development";
+
 let status = env.NODE_ENV === "development";
 
 export const isShown = () => status;
 
-if (!status) {
-    eruda.hide();
+if (env.NODE_ENV === "development") {
+    eruda.init();
 }
-
-eruda.init();
 
 export const show = () => {
     if (status) return;
-    eruda.show();
+    if (!isInitiated) {
+        eruda.init();
+    } else {
+        eruda.show();
+    }
     status = true;
 };
 
