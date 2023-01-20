@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
+import { computed, defineComponent, watchEffect } from "vue";
 
 import Page from "@/Pages/components/Page.vue";
 import { useStore } from "@/store";
@@ -57,6 +57,19 @@ export default defineComponent({
     const currentItem = computed(() => store.state.queue.items[store.state.queue.cursor]);
 
     const queue = computed(() => store.state.queue.items);
+
+    watchEffect(() => {
+      console.log(2);
+      navigator.mediaSession.setActionHandler("nexttrack", () => {
+        store.commit("next");
+      });
+      navigator.mediaSession.setActionHandler("previoustrack", () => {
+        store.commit("prev");
+      });
+      navigator.mediaSession.setActionHandler('stop', () => {
+        store.commit("clear");
+      });
+    });
 
     return {
       currentItem,

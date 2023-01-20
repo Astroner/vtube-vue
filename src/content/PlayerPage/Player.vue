@@ -176,6 +176,13 @@ export default defineComponent({
       };
     });
 
+    watchEffect(() => {
+      if (!info.value) return;
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: info.value.title,
+      });
+    });
+
     watch(info, (infoValue, _, onCleanup) => {
       if (infoValue?.blob) {
         onCleanup(() => {
@@ -186,8 +193,30 @@ export default defineComponent({
 
     watchEffect(() => {
       if (!audio.value) return;
-      if (isPlaying.value) audio.value.play();
-      else audio.value.pause();
+      if (isPlaying.value) {
+        navigator.mediaSession.playbackState = "playing";
+        audio.value.play();
+      } else {
+        navigator.mediaSession.playbackState = "paused";
+        audio.value.pause();
+      } 
+    });
+
+    watchEffect(() => {
+      navigator.mediaSession.setActionHandler("play", () => {
+        isPlaying.value = true;
+      });
+      navigator.mediaSession.setActionHandler("pause", () => {
+        isPlaying.value = false;
+      });
+      navigator.mediaSession.setActionHandler("seekforward", () => {
+        if (!audio.value) return;
+        audio.value.currentTime += 10;
+      });
+      navigator.mediaSession.setActionHandler("seekbackward", () => {
+        if (!audio.value) return;
+        audio.value.currentTime -= 10;
+      });
     });
 
     watch([volume, audio], ([volumeValue, el]) => {
