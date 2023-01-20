@@ -177,9 +177,15 @@ export default defineComponent({
     });
 
     watchEffect(() => {
-      if (!info.value) return;
+      if (!info.value) {
+        navigator.mediaSession.metadata = null;
+        return;
+      }
       navigator.mediaSession.metadata = new MediaMetadata({
         title: info.value.title,
+        artwork: info.value.displayImage.map((item) => ({
+          src: item.url,
+        })),
       });
     });
 
