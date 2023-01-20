@@ -7,6 +7,9 @@ module.exports = defineConfig({
     name: "VTube - video player",
     themeColor: "#ffffff",
     workboxPluginMode: "GenerateSW",
+    workboxOptions: {
+      skipWaiting: true,
+    },
     manifestOptions: {
       short_name: "VTube",
       icons: [

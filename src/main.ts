@@ -14,8 +14,7 @@ import "./registerServiceWorker";
 import { env } from './env';
 
 createApp(App).use(store, storeInjectionKey).use(Vue3TouchEvents).mount('#app');
-eruda.init();
 
-// if (env.NODE_ENV === "development") {
-//     eruda.init();
-// }
+if (env.NODE_ENV === "development") {
+    eruda.init();
+}
