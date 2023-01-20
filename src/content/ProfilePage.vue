@@ -17,6 +17,7 @@
         <Button @click="reset" style="margin-top: 20px">
           Wipe
         </Button>
+        <div @click="showConsole" style="margin-top: 20px; height: 80px"></div>
       </div>
     </Transition>
   </page>
@@ -34,6 +35,7 @@ import { useStore } from "@/store";
 import Input from "@/components/Input.vue";
 import Button from "@/components/Button.vue";
 import { usePages } from "@/Pages/hooks/usePages";
+import { show } from "@/helpers/eruda";
 
 export default defineComponent({
   components: { Page, Input, Button },
@@ -41,6 +43,7 @@ export default defineComponent({
     const store = useStore();
     const pages = usePages();
 
+    const counter = ref(0);
     const username = ref<string>("");
     const password = ref("");
 
@@ -62,6 +65,10 @@ export default defineComponent({
       },
       reset() {
         store.commit("resetToken");
+      },
+      showConsole() {
+        if (counter.value < 5) counter.value++;
+        else show();
       },
     };
   },

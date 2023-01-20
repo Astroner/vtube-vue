@@ -59,7 +59,6 @@ export default defineComponent({
     const queue = computed(() => store.state.queue.items);
 
     watchEffect(() => {
-      console.log(2);
       navigator.mediaSession.setActionHandler("nexttrack", () => {
         store.commit("next");
       });
