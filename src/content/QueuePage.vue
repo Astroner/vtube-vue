@@ -13,11 +13,11 @@
                 :code="item.code"
                 :active="item.status === 'DOWNLOADING'"
             />
-            <continue @continue="more" />
         </div>
         <heading v-else-if="isOpen" secondary center>
             Empty
         </heading>
+        <continue v-if="items.length < queueState.length" @continue="more" />
     </page>
 </template>
 

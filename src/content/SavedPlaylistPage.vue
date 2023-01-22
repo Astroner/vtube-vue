@@ -3,6 +3,7 @@
         hidden 
         name="SavedPlaylist" 
         @payload="setPayload" 
+        @leave="leave"
         :title="list === 'all' ? 'Everything' : playlist?.title"
     >
         <div class="saved-playlist__image">
@@ -23,9 +24,9 @@
         </div>
         <Button @click="shuffle" style="margin-top: 10px">Shuffle</Button>
         <fade-in>
-            <div v-if="items" class="saved-playlist__items">
+            <div v-if="displayItems" class="saved-playlist__items">
                 <saved-video
-                    v-for="(item, index) of items"
+                    v-for="(item, index) of displayItems"
                     class="saved-playlist__item"
                     :style="{ animationDelay: `${index < 10 ? index * 100 : 0}ms` }"
                     :key="item.code"
@@ -37,6 +38,10 @@
                 />
             </div> 
         </fade-in>
+        <continue
+            v-if="displayItems && items && displayItems.length < items.length"
+            @continue="more"
+        />
     </page>
 </template>
 
@@ -58,10 +63,17 @@ import { QueueItem } from '@/store/modules/modules';
 import { usePages } from '@/Pages/hooks/usePages';
 import FadeIn from '@/components/FadeIn.vue';
 import Icon from '@/components/Icon/Icon.vue';
+import Continue from '@/components/Continue.vue';
 
 export default defineComponent({
     components: { 
-        Page, DisplayImage, SavedVideo, Button, FadeIn, Icon,
+        Page,
+        DisplayImage,
+        SavedVideo,
+        Button,
+        FadeIn,
+        Icon,
+        Continue,
     },
     setup() {
         const store = useStore();
@@ -69,6 +81,7 @@ export default defineComponent({
         const currentPlying = useCurrentPlying();
 
         const list = ref<string | null>(null);
+        const displayLimit = ref(10);
 
         const [, playlist] = asyncComputed(async () => {
             if (!list.value) return "EXIT";
@@ -109,6 +122,8 @@ export default defineComponent({
             return info.filter((a): a is SavedVideoType => !!a);
         });
 
+        const displayItems = computed(() => items.value?.slice(0, displayLimit.value));
+
         watch(display, (url, _, onCleanup) => {
             if (!url) return;
             onCleanup(() => {
@@ -121,6 +136,7 @@ export default defineComponent({
             playlist,
             display,
             items,
+            displayItems,
             currentPlying,
             currentPlaylist,
             setPayload(payload: string) {
@@ -183,6 +199,13 @@ export default defineComponent({
                     store.commit("clear");
                 }
                 pages.goToPage("Saved");
+            },
+            more() {
+                displayLimit.value += 10;
+            },
+            leave() {
+                list.value = null;
+                displayLimit.value = 10;
             },
         };
     },
