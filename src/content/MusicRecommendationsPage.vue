@@ -6,6 +6,9 @@
     shortcut-icon="favorite" 
     :shortcut-icon-left-shift="-1"
   >
+    <heading v-if="!isOnline" secondary center>
+      Offline
+    </heading>
     <div v-if="categories">
       <div v-for="category of categories" :key="category.title" class="music__category">
         <h3>
@@ -45,17 +48,21 @@ import { asyncComputed } from "@/helpers/hooks/asyncComputed";
 import DisplayImage from "@/components/DisplayImage.vue";
 import { usePages } from "@/Pages/hooks/usePages";
 import { Recommendation } from "@/Responses";
+import { useIsOnline } from "@/helpers/hooks/use-is-online";
+import Heading from "@/components/Heading.vue";
 
 export default defineComponent({
-  components: { Page, DisplayImage },
+  components: { Page, DisplayImage, Heading },
   setup() {
     const store = useStore();
     const pages = usePages();
 
+    const isOnline = useIsOnline();
+
     const token = computed(() => store.state.user.token);
 
     const [, categories] = asyncComputed(async () => {
-      if (!token.value) return "EXIT";
+      if (!token.value || !isOnline.value) return "EXIT";
       const result = await getMusicRecommendations(token.value);
       return result.categories;
     });
@@ -63,6 +70,7 @@ export default defineComponent({
     return {
       categories,
       getMidItem,
+      isOnline,
       play: (item: Recommendation) => {
         pages.goToPage("Player");
         if (item.type === "VIDEO") {

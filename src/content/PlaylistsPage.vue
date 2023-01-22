@@ -1,5 +1,8 @@
 <template>
   <page name="Playlists" title>
+    <heading v-if="!isOnline" center secondary>
+      Offline
+    </heading>
     <div v-if="playlists">
       <display-playlist 
         v-for="item of playlists"
@@ -23,22 +26,27 @@ import { asyncComputed } from "@/helpers/hooks/asyncComputed";
 import { getUserPlaylists } from "@/api/main/playlists";
 import { PlaylistWithID } from "@/Responses";
 import DisplayPlaylist from "@/components/DisplayPlaylist.vue";
+import { useIsOnline } from "@/helpers/hooks/use-is-online";
+import Heading from "@/components/Heading.vue";
 
 export default defineComponent({
-  components: { Page, DisplayPlaylist },
+  components: { Page, DisplayPlaylist, Heading },
   setup() {
     const pages = usePages();
     const store = useStore();
 
+    const isOnline = useIsOnline();
+
     const token = computed(() => store.state.user.token);
 
     const [, playlists] = asyncComputed(async () => {
-      if (!token.value) return "EXIT";
+      if (!token.value || !isOnline.value) return "EXIT";
       const data = await getUserPlaylists(token.value);
       return data;
     });
 
     return {
+      isOnline,
       playlists,
       play: (list: PlaylistWithID) => {
         pages.goToPage("Playlist", list);

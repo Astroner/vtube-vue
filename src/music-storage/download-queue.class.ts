@@ -1,3 +1,4 @@
+import { onlineObservable } from "@/helpers/online-observable";
 import { AxiosError } from "axios";
 import { FetchedAudio } from "./fetch-audio";
 import { Loader } from "./loader.class";
@@ -12,6 +13,8 @@ export class DownloadQueue {
 
     private loaders: Loader[];
 
+    private subs = new Array<(items: SaveQueueItem[]) => void>();
+
     constructor(
         parallelDownloads: number,
         initialQueue: string[] = [],
@@ -25,13 +28,34 @@ export class DownloadQueue {
 
             return loader;
         });
-        this.loaders.forEach(() => this.checkForWork());
+
+        if (onlineObservable.getStatus()) this.loaders.forEach(() => this.checkForWork());
+
+        onlineObservable.subscribe((isOnline) => {
+            if (isOnline) {
+                this.loaders.forEach(() => this.checkForWork());
+            }
+        });
     }
 
     add(code: string) {
         if (this.queue.has(code)) return;
         this.queue.set(code, { code, status: "WAITING" });
         this.checkForWork();
+        this.update();
+    }
+
+    getQueueState() {
+        return Array.from(this.queue.values());
+    }
+
+    subscribe(cb: (items: SaveQueueItem[]) => void) {
+        this.subs.push(cb);
+        return {
+            unsubscribe: () => {
+                this.subs.splice(this.subs.indexOf(cb), 1);
+            },
+        };
     }
 
     private async onLoaderFinish(result: FetchedAudio) {
@@ -43,12 +67,20 @@ export class DownloadQueue {
         }
         this.queue.delete(result.code);
         this.checkForWork();
+        this.update();
     }
 
     private onLoaderFailure(code: string, error: AxiosError) {
-        this.queue.delete(code);
-        this.checkForWork();
-        if (this.onDownloadFailure) this.onDownloadFailure(code, error);
+        if (error.code !== "ERR_NETWORK") {
+            this.queue.delete(code);
+            this.checkForWork();
+            if (this.onDownloadFailure) this.onDownloadFailure(code, error);
+            this.update();
+        } else {
+            const item = this.queue.get(code);
+            if (!item) return;
+            item.status = "WAITING";
+        }
     }
 
     private checkForWork() {
@@ -61,6 +93,13 @@ export class DownloadQueue {
                 }
                 break;
             }
+        }
+    }
+
+    private update() {
+        const value = this.getQueueState();
+        for (const cb of this.subs) {
+            cb(value);
         }
     }
 }

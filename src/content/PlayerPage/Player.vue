@@ -1,10 +1,12 @@
 <template>
   <div :style="{ margin: margin }" class="player__root">
     <transition name="fade">
-      <div
+      <display-image
         v-if="info"
         class="player__display"
-        :style="{ backgroundImage: `url(${getMidItem(info.displayImage).url})` }"
+        :display="info.displayImage"
+        height="calc(100% - 10px)"
+        width="calc(100% - 10px)"
         @click="interact"
       >
         <div class="player__container" >
@@ -30,7 +32,7 @@
             <div class="player__dot" :style="{ left: `${progress * 100}%` }" />
           </div>
         </div>
-      </div>
+      </display-image>
     </transition>
     <audio
       key="player"
@@ -77,9 +79,10 @@ import { getMidItem } from '@/helpers/functions/getMidItem';
 import { asyncComputed } from '@/helpers/hooks/asyncComputed';
 import Icon from '@/components/Icon/Icon.vue';
 import { musicStorage } from '@/music-storage';
+import DisplayImage from '@/components/DisplayImage.vue';
 
 export default defineComponent({
-  components: { Icon },
+  components: { Icon, DisplayImage },
   props: {
     code: String,
     margin: String,
@@ -325,16 +328,6 @@ export default defineComponent({
     position: absolute;
     top: 5px;
     left: 5px;
-
-    width: calc(100% - 10px);
-    height: calc(100% - 10px);
-
-    background-position: center center;
-    background-size: cover;
-
-    border: 1px solid black;
-
-    box-shadow: 0 0 10px rgba($color: #000000, $alpha: .3);
   }
   &__container {
     position: relative;

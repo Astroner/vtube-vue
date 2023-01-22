@@ -41,6 +41,7 @@ export default defineComponent({
     className: String,
     shortcutIconLeftShift: Number,
   },
+  emits: ["payload", "enter", "leave"],
   setup(props, ctx) {
     const pagesAPI = inject(PagesAPIKey, PagesAPIDefault);
     
@@ -62,8 +63,9 @@ export default defineComponent({
     watch(isActive, (activeValue) => {
       if (activeValue) {
         ctx.emit("payload", pagesAPI.pagePayload.value);
+        ctx.emit("enter");
       } else {
-        setTimeout(() => ctx.emit("leave"), 300);
+        setTimeout(() => ctx.emit("leave"), 400);
       }
     });
 

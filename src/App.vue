@@ -11,6 +11,7 @@
         <profile-page />
         <playlist-page />
         <saved-playlist-page />
+        <queue-page />
       </pages>
     </div>
   </div>
@@ -27,6 +28,7 @@ import Pages from './Pages/Pages.vue';
 import PlaylistPage from './content/PlaylistPage.vue';
 import SavedPage from './content/SavedPage.vue';
 import SavedPlaylistPage from './content/SavedPlaylistPage.vue';
+import QueuePage from './content/QueuePage.vue';
 
 export default defineComponent({
   components: {
@@ -39,6 +41,7 @@ export default defineComponent({
     PlaylistPage,
     SavedPage,
     SavedPlaylistPage,
+    QueuePage,
   },
   name: 'App',
 });

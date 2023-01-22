@@ -1,88 +1,93 @@
 <template>
   <page name="Search" title>
-    <div class="search__request">
-      - I'm trying to find <span
-        tabindex="0"
-        role="textbox"
-        contenteditable
-        :class="[
-          'search__value',
-          !value && 'search__value--placeholder'
-        ]"
-        @input="value = $event.currentTarget.textContent"
-      >
-        {{ value }}
-      </span>
-    </div>
-    <transition name="question">
-      <div class="search__second" v-if="processed">
-        - Is it a {{
-          processed.type === "DYNAMIC_PLAYLIST"
-          ? "dynamic playlist"
-          : processed.type === "PLAYLIST"
-          ? "playlist"
-          : "video"
-        }}?
-      </div>
-    </transition>
-    <transition name="answers">
-      <div class="search__result search__answers" v-if="processed">
-        <button
-          :class="[isSearching && 'active']"
-          @click="isSearching = true"
-          :disabled="isSearching"
+    <div v-if="isOnline">
+      <div class="search__request">
+        - I'm trying to find <span
+          tabindex="0"
+          role="textbox"
+          contenteditable
+          :class="[
+            'search__value',
+            !value && 'search__value--placeholder'
+          ]"
+          @input="value = $event.currentTarget.textContent"
         >
-          Yes
-        </button>
-        <button
-          @click="value = ''"
-          :disabled="isSearching"
-        >
-          Clear
-        </button>
+          {{ value }}
+        </span>
       </div>
-    </transition>
-    <transition name="question">
-      <div class="search__second" v-if="isSearching">
-        - Ok, searching<dots :active="isLoading" />
-      </div>
-    </transition>
-    <transition name="question">
-      <div v-if="info" class="search__second">
-        - Found!
-      </div>
-    </transition>
-    <transition name="answers">
-      <div v-if="info" class="search__second search__info__border">
-        <display-image
-          class="search__info__image"
-          :display="info.type === 'VIDEO' ? info.info.displayImage : info.info.display"
-        />
-        <div class="search__info__title">
-          {{ info.info.title }}
+      <transition name="question">
+        <div class="search__second" v-if="processed">
+          - Is it a {{
+            processed.type === "DYNAMIC_PLAYLIST"
+            ? "dynamic playlist"
+            : processed.type === "PLAYLIST"
+            ? "playlist"
+            : "video"
+          }}?
         </div>
-      </div>
-    </transition>
-    <transition name="answers">
-      <div v-if="info" class="search__result search__answers">
-        <button
-          @click="play()"
-        >
-          Play
-        </button>
-        <button
-          @click="reset()"
-        >
-          Clear
-        </button>
-        <button
-          v-if="info.type === 'PLAYLIST'"
-          @click="shuffle()"
-        >
-          Shuffle
-        </button>
-      </div>
-    </transition>
+      </transition>
+      <transition name="answers">
+        <div class="search__result search__answers" v-if="processed">
+          <button
+            :class="[isSearching && 'active']"
+            @click="isSearching = true"
+            :disabled="isSearching"
+          >
+            Yes
+          </button>
+          <button
+            @click="value = ''"
+            :disabled="isSearching"
+          >
+            Clear
+          </button>
+        </div>
+      </transition>
+      <transition name="question">
+        <div class="search__second" v-if="isSearching">
+          - Ok, searching<dots :active="isLoading" />
+        </div>
+      </transition>
+      <transition name="question">
+        <div v-if="info" class="search__second">
+          - Found!
+        </div>
+      </transition>
+      <transition name="answers">
+        <div v-if="info" class="search__second search__info__border">
+          <display-image
+            class="search__info__image"
+            :display="info.type === 'VIDEO' ? info.info.displayImage : info.info.display"
+          />
+          <div class="search__info__title">
+            {{ info.info.title }}
+          </div>
+        </div>
+      </transition>
+      <transition name="answers">
+        <div v-if="info" class="search__result search__answers">
+          <button
+            @click="play()"
+          >
+            Play
+          </button>
+          <button
+            @click="reset()"
+          >
+            Clear
+          </button>
+          <button
+            v-if="info.type === 'PLAYLIST'"
+            @click="shuffle()"
+          >
+            Shuffle
+          </button>
+        </div>
+      </transition>
+    </div>
+    <heading v-else center secondary>
+      Offline
+    </heading>
   </page>
 </template>
 
@@ -93,15 +98,20 @@ import Page from "@/Pages/components/Page.vue";
 import { useStore } from "@/store";
 import DisplayImage from "@/components/DisplayImage.vue";
 import { usePages } from "@/Pages/hooks/usePages";
+import Heading from "@/components/Heading.vue";
+import { useIsOnline } from "@/helpers/hooks/use-is-online";
 
 import Dots from "./Dots.vue";
 import { useSearch } from "./useSearch";
 
 export default defineComponent({
-  components: { Page, Dots, DisplayImage },
+  components: {
+ Page, Dots, DisplayImage, Heading, 
+},
   setup() {
     const store = useStore();
     const pages = usePages();
+    const isOnline = useIsOnline();
 
     const {
       value,
@@ -117,6 +127,7 @@ export default defineComponent({
       processed,
       isSearching,
       isLoading,
+      isOnline,
       info,
       play: () => {
         if (!info.value) return;

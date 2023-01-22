@@ -30,7 +30,7 @@ export class MusicStorage {
 
     private storage = new DB("vtube-storage", this.storageModel);
 
-    private downloadQueue = new DownloadQueue(2);
+    public downloadQueue = new DownloadQueue(2);
 
     public savedPlaylists = new DBObservable(this.storage, "playlists");
 
