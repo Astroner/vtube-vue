@@ -32,5 +32,6 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     'class-methods-use-this': 'off',
     'no-continue': 'off',
+    'no-confusing-arrow': 'off',
   },
 };

@@ -4,11 +4,19 @@
   </display-video>
 </template>
 
-<script>
-import { toRefs, computed, watch } from 'vue';
+<script lang="ts">
+import {
+    toRefs,
+    computed,
+    watch,
+    defineComponent,
+} from 'vue';
+
+import { ObjectURL } from '@/helpers/classes/object-url.class';
+
 import DisplayVideo from './DisplayVideo.vue';
 
-export default {
+export default defineComponent({
     components: { DisplayVideo },
     props: {
         code: {
@@ -28,15 +36,17 @@ export default {
     setup(props) {
         const { thumbnail } = toRefs(props);
 
+        const url = computed(() => new ObjectURL(thumbnail.value));
+
         const display = computed(() => [{
-            url: URL.createObjectURL(thumbnail.value),
+            url: url.value.url,
             width: 0,
             height: 0,
         }]);
 
-        watch(display, (url, _, onCleanup) => {
+        watch(url, (urlValue, _, onCleanup) => {
             onCleanup(() => {
-                URL.revokeObjectURL(url[0].url);
+                urlValue.destroy();
             });
         }, { immediate: true });
 
@@ -44,5 +54,5 @@ export default {
             display,
         };
     },
-};
+});
 </script>

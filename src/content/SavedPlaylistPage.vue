@@ -64,6 +64,7 @@ import { usePages } from '@/Pages/hooks/usePages';
 import FadeIn from '@/components/FadeIn.vue';
 import Icon from '@/components/Icon/Icon.vue';
 import Continue from '@/components/Continue.vue';
+import { ObjectURL } from '@/helpers/classes/object-url.class';
 
 export default defineComponent({
     components: { 
@@ -93,6 +94,11 @@ export default defineComponent({
 
         const currentPlaylist = computed(() => store.state.queue.currentPlaylist);
 
+        const url = computed(() => {
+            if (!playlist.value || list.value === "all") return null;
+            return new ObjectURL(playlist.value.thumbnail);
+        });
+
         const display = computed(() => {
             if (list.value === "all") {
                 return [{
@@ -101,9 +107,9 @@ export default defineComponent({
                     height: 0,
                 }];
             }
-            if (!playlist.value) return null;
+            if (!url.value) return null;
             return [{
-                url: URL.createObjectURL(playlist.value?.thumbnail),
+                url: url.value.url,
                 width: 0,
                 height: 0,
             }];
@@ -124,10 +130,10 @@ export default defineComponent({
 
         const displayItems = computed(() => items.value?.slice(0, displayLimit.value));
 
-        watch(display, (url, _, onCleanup) => {
-            if (!url) return;
+        watch(url, (urlValue, _, onCleanup) => {
+            if (!urlValue) return;
             onCleanup(() => {
-                URL.revokeObjectURL(url[0].url);
+                urlValue.destroy();
             });
         }, { immediate: true });
 

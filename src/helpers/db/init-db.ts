@@ -46,7 +46,9 @@ export const initDB = (
                     .from(db.objectStoreNames)
                     .map((table) => {
                         const store = transaction.objectStore(table);
+
                         if (!newState[table]) return Promise.resolve(null);
+
                         return Promise.all(newState[table].map((
                             item: { key: number | string, value: any },
                         ) => new Promise((res, rej) => {

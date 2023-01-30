@@ -107,6 +107,74 @@ export class DB <Model extends DBModel<any, any>> {
         });
     }
 
+    async find<K extends keyof Model['tables']>(
+        table: K, 
+        predicate: (item: { 
+            key: Model['tables'][K]['autoKey'] extends true ? number : string, 
+            value: Model['tables'][K]['type']
+        }) => boolean,
+    ): Promise<Model['tables'][K]['type'] | null> {
+        const db = await this.db;
+
+        const transaction = db.transaction(table as string, "readonly");
+
+        const storage = transaction.objectStore(table as string);
+
+        const req = storage.openCursor();
+
+        return new Promise((resolve) => {
+            req.onsuccess = () => {
+                const cursor = req.result;
+    
+                if (cursor) {
+                    if (
+                        predicate({ key: cursor.key.valueOf() as any, value: cursor.value })
+                    ) {
+                        resolve(cursor.value);
+                    } else {
+                        cursor.continue();
+                    }
+                } else {
+                    resolve(null);
+                }
+            };
+        });
+    }
+
+    async findAll<K extends keyof Model['tables']>(
+        table: K, 
+        predicate: (item: { 
+            key: Model['tables'][K]['autoKey'] extends true ? number : string, 
+            value: Model['tables'][K]['type']
+        }) => boolean,
+    ): Promise<Model['tables'][K]['type'][]> {
+        const db = await this.db;
+
+        const transaction = db.transaction(table as string, "readonly");
+
+        const storage = transaction.objectStore(table as string);
+        
+        const req = storage.openCursor();
+
+        const result: Model['tables'][K]['type'][] = [];
+
+        return new Promise((resolve) => {
+            req.onsuccess = () => {
+                const cursor = req.result;
+    
+                if (cursor) {
+                    if (predicate({ key: cursor.key.valueOf() as any, value: cursor.value })) {
+                        result.push(cursor.value);
+                    }
+
+                    cursor.continue();
+                } else {
+                    resolve(result);
+                }
+            };
+        });
+    }
+
     subscribe(cb: (changedTable: keyof Model['tables']) => void) {
         this.subscriptions.push(cb);
 

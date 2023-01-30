@@ -7,6 +7,11 @@ export type TablesType<Tables extends Record<string, DBTable<any, boolean>>> = {
     }>
 }
 
+export type ExtendTable<
+    Origin extends Record<string, DBTable<any, boolean>>,
+    Extend extends Record<string, DBTable<any, boolean>>,
+> = Omit<Origin, keyof Extend> & Extend;
+
 export class DBModel<
     CurrentTables extends Record<string, DBTable<any, boolean>>,
     PrevModel extends DBModel<any, any> | null = null,
@@ -32,5 +37,15 @@ export class DBModel<
         migrate: (data: TablesType<CurrentTables>) => Partial<TablesType<NextTables>>,
     ): DBModel<NextTables, DBModel<CurrentTables, PrevModel>> {
         return new DBModel(tables, this.version + 1, this, migrate as any);
+    }
+
+    extend<AddTables extends Record<string, DBTable<any, boolean>>>(
+        addTables: AddTables,
+        migrate: (data: TablesType<CurrentTables>) => Partial<TablesType<ExtendTable<CurrentTables, AddTables>>>
+    ): DBModel<ExtendTable<CurrentTables, AddTables>, DBModel<CurrentTables, PrevModel>> {
+        return new DBModel({
+            ...this.tables,
+            ...addTables,
+        }, this.version + 1, this, migrate as any);
     }
 }

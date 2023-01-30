@@ -6,6 +6,9 @@
 import {
  defineComponent, toRefs, computed, watch, 
 } from 'vue';
+
+import { ObjectURL } from '@/helpers/classes/object-url.class';
+
 import DisplayPlaylist from './DisplayPlaylist.vue';
 
 export default defineComponent({
@@ -23,15 +26,17 @@ export default defineComponent({
     setup(props) {
         const { thumbnail } = toRefs(props);
 
+        const url = computed(() => new ObjectURL(thumbnail.value));
+
         const display = computed(() => [{
-            url: URL.createObjectURL(thumbnail.value),
-            width: 0,
+            url: url.value.url,
             height: 0,
+            width: 0,
         }]);
 
-        watch(display, (url, _, onCleanup) => {
+        watch(url, (urlValue, _, onCleanup) => {
             onCleanup(() => {
-                URL.revokeObjectURL(url[0].url);
+                urlValue.destroy();
             });
         }, { immediate: true });
 

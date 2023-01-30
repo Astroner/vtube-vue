@@ -80,6 +80,8 @@ import { asyncComputed } from '@/helpers/hooks/asyncComputed';
 import Icon from '@/components/Icon/Icon.vue';
 import { musicStorage } from '@/music-storage';
 import DisplayImage from '@/components/DisplayImage.vue';
+import { ObjectURL } from '@/helpers/classes/object-url.class';
+import { MediaInfo } from '@/Responses';
 
 export default defineComponent({
   components: { Icon, DisplayImage },
@@ -118,17 +120,22 @@ export default defineComponent({
       return formatted.length > 2 ? formatted : formatted + " s";
     });
 
-    const [, media] = asyncComputed((status) => {
+    const [, media] = asyncComputed<{
+      src: string, 
+      mime: string, 
+      obj: ObjectURL | null
+    }>((status) => {
       if (!code.value) return "EXIT";
 
       if (saved.value) {
         return musicStorage.getAudio(code.value)
           .then((blob) => {
             if (!blob || !status.isActive) return "EXIT";
+            const url = new ObjectURL(blob);
             return {
-              src: URL.createObjectURL(blob),
+              src: url.url,
               mime: blob.type,
-              blob: true,
+              obj: url,
             };
           });
       }
@@ -144,38 +151,40 @@ export default defineComponent({
           return {
             src: url.toString(),
             mime: midFormat.mime,
-            blob: false,
+            obj: null,
           };
         });
     });
 
     watch(media, (mediaValue, _, onCleanup) => {
-      if (mediaValue?.blob) {
+      const obj = mediaValue?.obj;
+      if (obj) {
         onCleanup(() => {
-          URL.revokeObjectURL(mediaValue.src);
+          obj.destroy();
         });
       }
     });
 
-    const [, info] = asyncComputed(async () => {
+    const [, info] = asyncComputed<MediaInfo & { obj: ObjectURL | null }>(async () => {
       if (!code.value) return "EXIT";
       if (saved.value) {
         const savedInfo = await musicStorage.getSavedInfo(code.value);
 
         if (!savedInfo) return "EXIT";
+        const obj = new ObjectURL(savedInfo.thumbnail);
         return {
           title: savedInfo.title,
           displayImage: [{
-            url: URL.createObjectURL(savedInfo.thumbnail),
+            url: obj.url,
             width: 0,
             height: 0,
           }],
-          blob: true,
+          obj,
         };
       }
       return {
         ...(await getInfo(code.value)),
-        blob: false,
+        obj: null,
       };
     });
 
@@ -193,9 +202,10 @@ export default defineComponent({
     });
 
     watch(info, (infoValue, _, onCleanup) => {
-      if (infoValue?.blob) {
+      const obj = infoValue?.obj;
+      if (obj) {
         onCleanup(() => {
-          URL.revokeObjectURL(infoValue.displayImage[0].url);
+          obj.destroy();
         });
       }
     });

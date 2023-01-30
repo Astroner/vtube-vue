@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, watchEffect } from 'vue';
 import PlayerPage from './content/PlayerPage/PlayerPage.vue';
 import ProfilePage from './content/ProfilePage.vue';
 import MusicRecommendationsPage from './content/MusicRecommendationsPage.vue';
@@ -29,6 +29,8 @@ import PlaylistPage from './content/PlaylistPage.vue';
 import SavedPage from './content/SavedPage.vue';
 import SavedPlaylistPage from './content/SavedPlaylistPage.vue';
 import QueuePage from './content/QueuePage.vue';
+import { musicStorage } from './music-storage';
+import { useIsOnline } from './helpers/hooks/use-is-online';
 
 export default defineComponent({
   components: {
@@ -44,6 +46,15 @@ export default defineComponent({
     QueuePage,
   },
   name: 'App',
+  setup() {
+    const isOnline = useIsOnline();
+
+    watchEffect(() => {
+      if (isOnline.value) {
+        musicStorage.updateSavedPlaylists().then(console.log);
+      }
+    });
+  },
 });
 </script>
 
