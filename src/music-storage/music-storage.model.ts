@@ -30,8 +30,3 @@ export type PlaylistDiff = {
         | { type: "DEL", code: string }
     >
 };
-
-export type PlaylistAudio = {
-    list: string;
-    code: string;
-}

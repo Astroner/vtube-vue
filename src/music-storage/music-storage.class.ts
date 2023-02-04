@@ -1,10 +1,8 @@
-import { getPlaylist } from "@/api/main/playlists";
-import { DBObservable } from "@/helpers/db/db-observable.class";
-import { AxiosError } from "axios";
+import { DBObservable } from "@dogonis/db";
 import { storage } from "./db-model";
 import { DownloadQueue } from "./download-queue.class";
 import { fetchPlaylist } from "./fetch-playlist";
-import { PlaylistDiff } from "./music-storage.model";
+import { getPlaylistsDiff } from "./get-playlists-diff";
 
 export class MusicStorage {
     public downloadQueue = new DownloadQueue(2);
@@ -44,14 +42,24 @@ export class MusicStorage {
         return storage.get("playlists", list);
     }
 
-    // getPlaylistAudios(list: string) {
-    //     return storage.findAll("playlistAudios", ({ value }) => value.list === list);
-    // }
+    async getPlaylistAudios(list: string) {
+        const entries = await storage.getAllBy("playlistAudios", "list", list);
+
+        return entries.map((entry) => entry.value.code);
+    }
 
     async savePlaylist(list: string) {
         const playlist = await fetchPlaylist(list);
 
-        storage.put("playlists", playlist.list, playlist);
+        storage.add("playlists", playlist.list, {
+            list: playlist.list,
+            thumbnail: playlist.thumbnail,
+            title: playlist.title,
+        });
+
+        for (const code of playlist.videos) {
+            storage.add("playlistAudios", null, { code, list });
+        }
 
         for (const video of playlist.videos) {
             this.saveAudio(video);
@@ -91,96 +99,59 @@ export class MusicStorage {
 
     async deleteAllSaved() {
         return Promise.all([
-            storage.deleteAll("all"),
-            storage.deleteAll("audios"),
-            storage.deleteAll("playlists"),
+            storage.clear("all"),
+            storage.clear("audios"),
+            storage.clear("playlists"),
         ]);
     }
 
     async deletePlaylist(list: string) {
-        const playlists = await this.savedPlaylists.getValue();
+        const audios = await this.getPlaylistAudios(list);
 
-        const current = playlists.find((item) => item.list === list);
-
-        if (!current) return;
-
-        storage.delete('playlists', list);
-
-        for (const code of current.videos) {
-            const includedInAnotherPlaylist = playlists.find((item) => item.list === list 
-                ? false 
-                : !!item.videos.find((vod) => vod === code));
-
-            if (includedInAnotherPlaylist) {
-                continue;
-            }
-            this.deleteSaved(code);
-        }
+        await Promise.all(
+            [storage.delete("playlists", list)]
+                .concat(
+                    audios.map(
+                        (code) => this.deleteFromPlaylist(list, code),
+                    ),
+                ),
+        );
     }
 
-    async deleteFromPlaylist(code: string, list: string) {
-        const playlists = await this.savedPlaylists.getValue();
+    async addToPlaylist(list: string, code: string) {
+        const entries = await storage.getAllBy("playlistAudios", "code", code);
+        if (entries.find((entry) => entry.value.list === list)) return;
+        
+        await storage.add("playlistAudios", null, { list, code });
 
-        const current = playlists.find((item) => item.list === list);
+        await this.saveAudio(code);
+    }
 
-        if (!current || !current.videos.includes(code)) return;
+    async deleteFromPlaylist(list: string, code: string) {
+        const playlistsWithAudio = await storage.getAllBy("playlistAudios", "code", code);
 
-        const includedInAnotherPlaylist = playlists.find((item) => item.list === list 
-                ? false 
-                : !!item.videos.find((vod) => vod === code));
+        const playlistAudioEntry = playlistsWithAudio.find((item) => item.value.list === list);
 
-        if (!includedInAnotherPlaylist) this.deleteSaved(code);
+        if (!playlistAudioEntry) return;
+
+        if (playlistsWithAudio.length === 1 && playlistsWithAudio[0].value.list === list) {
+            this.deleteSaved(code);
+        }
+
+        storage.delete("playlistAudios", playlistAudioEntry.key);
     }
 
     async updateSavedPlaylists() {
-        const saves = await this.savedPlaylists.getValue();
+        const diff = await getPlaylistsDiff();
 
-        const diffs = await Promise.all(saves.map(async (saved): Promise<PlaylistDiff> => {
-            try {
-                const info = await getPlaylist(saved.list);
-                const videosMap = new Map(info.list.map((item) => [item.code, item.code]));
-    
-                const diff = new Array<{ type: "DEL" | "ADD", code: string }>();
-    
-                for (const item of saved.videos) {
-                    if (videosMap.has(item)) {
-                        videosMap.delete(item);
-                    } else {
-                        diff.push({
-                            type: "DEL",
-                            code: item,
-                        });
-                    }
-                }
-    
-                for (const code of videosMap.keys()) {
-                    diff.push({
-                        type: "ADD",
-                        code,
-                    });
-                }
-    
-                return {
-                    list: saved.list,
-                    diff,
-                    removed: false,
-                };
-            } catch (e: any) {
-                if (e.isAxiosError) {
-                    const error: AxiosError = e;
-
-                    if (error.response?.status === 404) {
-                        return {
-                            list: saved.list,
-                            diff: [],
-                            removed: true,
-                        };
-                    }
-                }
-                throw e;
-            }
+        await Promise.all(diff.map((playlist) => {
+            if (playlist.removed) return this.deletePlaylist(playlist.list);
+            return Promise.all(playlist.diff.map((item) => {
+                if (item.type === "ADD") return this.addToPlaylist(playlist.list, item.code);
+                return this.deleteFromPlaylist(playlist.list, item.code);
+            }));
         }));
 
-        return diffs;
+        return diff;
     }
 }

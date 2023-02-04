@@ -116,13 +116,16 @@ export default defineComponent({
         });
 
         const [, items] = asyncComputed(async () => {
+            if (!list.value) return "EXIT";
+
             if (list.value === "all") {
                 return musicStorage.getAllSaved();
             }
-            if (!playlist.value) return "EXIT";
+
+            const audios = await musicStorage.getPlaylistAudios(list.value);
             
             const info = await Promise.all(
-                playlist.value.videos.map((code) => musicStorage.getSavedInfo(code)),
+                audios.map((code) => musicStorage.getSavedInfo(code)),
             );
 
             return info.filter((a): a is SavedVideoType => !!a);
