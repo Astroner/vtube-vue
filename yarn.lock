@@ -1745,10 +1745,10 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     to-fast-properties "^2.0.0"
 
-"@dogonis/db@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@dogonis/db/-/db-1.0.4.tgz#383e7797f8872577bd8c45b5430f2d18911c192e"
-  integrity sha512-COgX7HQeZsavZURbzlX1Mzo4J39SJ6ktEUpaNF/7BlwbVksgjUWnhtVIJkcfGKSRdE+x2z7xMCKS26dr+Adn5A==
+"@dogonis/db@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@dogonis/db/-/db-1.0.7.tgz#1fb2c5e4acaa9a6aa979b4c4d4278c1790c06215"
+  integrity sha512-ARqeEvdy2Ml08pkWYCqs5t941otf3RNj319OYbG1MVyW+77MYuhFDtOlvdNuZNktbt0KOsL94zdlVuhfCTeJVQ==
 
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"

@@ -27,6 +27,13 @@
             @click="open(playlist.list)"
         />
     </div>
+    <display-playlist 
+        v-if="others?.length ?? 0 > 0"
+        style="margin-top: 10px"
+        title="Others"
+        :display="[{ url: '/others-background.jpeg', width: 0, height: 0 }]"
+        @click="openOthers"
+    />
   </page>
 </template>
 
@@ -40,6 +47,7 @@ import SavedPlaylist from '@/components/SavedPlaylist.vue';
 import DisplayPlaylist from '@/components/DisplayPlaylist.vue';
 import { useIsOnline } from '@/helpers/hooks/use-is-online';
 import { useDownloadsQueue } from '@/helpers/hooks/use-downloads-queue';
+import { MusicStorage } from '@/music-storage/music-storage.class';
 
 export default {
     components: { Page, SavedPlaylist, DisplayPlaylist },
@@ -47,11 +55,13 @@ export default {
         const pages = usePages();
         const saved = useSaved();
         const savedPlaylists = useDBObservable(musicStorage.savedPlaylists);
+        const others = useDBObservable(musicStorage.others);
         const isOnline = useIsOnline();
 
         const queueState = useDownloadsQueue();
 
         return {
+            others,
             queueState,
             saved,
             savedPlaylists,
@@ -61,6 +71,9 @@ export default {
             },
             goToQueue() {
                 pages.goToPage("Queue");
+            },
+            openOthers() {
+                pages.goToPage("SavedPlaylist", MusicStorage.OTHERS_KEY);
             },
         };
     },

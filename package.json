@@ -9,7 +9,7 @@
     "start": "serve -s dist"
   },
   "dependencies": {
-    "@dogonis/db": "^1.0.4",
+    "@dogonis/db": "^1.0.7",
     "axios": "^0.27.2",
     "core-js": "^3.8.3",
     "eruda": "^2.11.0",

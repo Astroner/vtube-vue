@@ -1,12 +1,10 @@
-import { DBObservable } from "@dogonis/db";
-import { ref, watchEffect } from "vue";
-
-type PromiseType<P> = P extends Promise<infer T> ? T : any;
+import { DBObservable, DBObservableType } from "@dogonis/db";
+import { Ref, ref, watchEffect } from "vue";
 
 export const useDBObservable = <
-    OBT extends DBObservable<any, any>,
->(observable: OBT) => {
-    const value = ref<null | PromiseType<ReturnType<OBT['getValue']>>>(null);
+    OBT extends DBObservable<any, any, any>,
+>(observable: OBT): Ref<DBObservableType<OBT> | null> => {
+    const value = ref<null | DBObservableType<OBT>>(null);
 
     watchEffect((onCleanup) => {
         observable.getValue()

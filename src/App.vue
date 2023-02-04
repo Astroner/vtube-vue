@@ -51,7 +51,7 @@ export default defineComponent({
 
     watchEffect(() => {
       if (isOnline.value) {
-        musicStorage.updateSavedPlaylists().then(console.log);
+        musicStorage.updateSavedPlaylists();
       }
     });
   },

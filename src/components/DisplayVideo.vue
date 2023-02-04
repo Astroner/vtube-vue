@@ -1,6 +1,6 @@
 <template>
     <div
-        :ref="el => elRef = el"
+        ref="elRef"
         :class="{
             'video': true,
             'video--active': active,
@@ -113,7 +113,7 @@ export default {
                 menuState.value = false;
             },
             async save() {
-                musicStorage.saveAudio(code.value);
+                musicStorage.saveToOthers(code.value);
             },
         };
     },

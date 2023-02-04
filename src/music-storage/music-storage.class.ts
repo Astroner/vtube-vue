@@ -5,14 +5,24 @@ import { fetchPlaylist } from "./fetch-playlist";
 import { getPlaylistsDiff } from "./get-playlists-diff";
 
 export class MusicStorage {
+    static OTHERS_KEY = "other_audios"
+
     public downloadQueue = new DownloadQueue(2);
 
-    public savedPlaylists = new DBObservable(storage, "playlists");
+    public savedPlaylists = DBObservable.create(storage, "playlists");
 
-    public queue = new DBObservable(storage, "queue");
+    public others = DBObservable.create(
+        storage, 
+        "playlistAudios", 
+        () => storage
+            .getAllBy("playlistAudios", "list", MusicStorage.OTHERS_KEY)
+            .then((data) => data.map((item) => item.value.code)),
+    );
+
+    public queue = DBObservable.create(storage, "queue");
 
     // TODO: delete this observable coz it costs tooo much
-    public all = new DBObservable(storage, "all");
+    public all = DBObservable.create(storage, "all");
 
     constructor() {
         this.downloadQueue.onDownloadCompleted = async (audio) => {
@@ -46,6 +56,10 @@ export class MusicStorage {
         const entries = await storage.getAllBy("playlistAudios", "list", list);
 
         return entries.map((entry) => entry.value.code);
+    }
+
+    async saveToOthers(code: string) {
+        await this.addToPlaylist(MusicStorage.OTHERS_KEY, code);
     }
 
     async savePlaylist(list: string) {

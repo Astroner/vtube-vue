@@ -27,15 +27,24 @@
             <div v-if="displayItems" class="saved-playlist__items">
                 <saved-video
                     v-for="(item, index) of displayItems"
+                    :key="item.code"
                     class="saved-playlist__item"
                     :style="{ animationDelay: `${index < 10 ? index * 100 : 0}ms` }"
-                    :key="item.code"
                     :code="item.code"
                     :thumbnail="item.thumbnail"
                     :title="item.title"
                     @click="playFromIndex(index)"
                     :active="item.code === currentPlying?.code"
-                />
+                >
+                    <template #default v-if="isOthers">
+                        <Button @click="playFromIndex(index)">
+                            Play
+                        </Button>
+                        <Button style="margin-left: 5px" @click="deleteFromPlaylist(item.code)">
+                            Delete
+                        </Button>
+                    </template>
+                </saved-video>
             </div> 
         </fade-in>
         <continue
@@ -47,7 +56,7 @@
 
 <script lang="ts">
 import { 
-    computed, defineComponent, ref, watch,
+    computed, defineComponent, ref, watch, watchEffect,
 } from 'vue';
 
 import Page from '@/Pages/components/Page.vue';
@@ -65,6 +74,8 @@ import FadeIn from '@/components/FadeIn.vue';
 import Icon from '@/components/Icon/Icon.vue';
 import Continue from '@/components/Continue.vue';
 import { ObjectURL } from '@/helpers/classes/object-url.class';
+import { MusicStorage } from '@/music-storage/music-storage.class';
+import { useDBObservable } from '@/helpers/hooks/use-db-observable';
 
 export default defineComponent({
     components: { 
@@ -80,6 +91,7 @@ export default defineComponent({
         const store = useStore();
         const pages = usePages();
         const currentPlying = useCurrentPlying();
+        const others = useDBObservable(musicStorage.others);
 
         const list = ref<string | null>(null);
         const displayLimit = ref(10);
@@ -87,10 +99,12 @@ export default defineComponent({
         const [, playlist] = asyncComputed(async () => {
             if (!list.value) return "EXIT";
 
-            if (list.value === "all") return "EXIT";
+            if (list.value === "all" || list.value === MusicStorage.OTHERS_KEY) return "EXIT";
 
             return musicStorage.getPlaylist(list.value);
         });
+
+        const isOthers = computed(() => list.value === MusicStorage.OTHERS_KEY);
 
         const currentPlaylist = computed(() => store.state.queue.currentPlaylist);
 
@@ -107,6 +121,13 @@ export default defineComponent({
                     height: 0,
                 }];
             }
+            if (list.value === MusicStorage.OTHERS_KEY) {
+                return [{
+                    url: '/others-background.jpeg',
+                    width: 0,
+                    height: 0,
+                }];
+            }
             if (!url.value) return null;
             return [{
                 url: url.value.url,
@@ -116,13 +137,15 @@ export default defineComponent({
         });
 
         const [, items] = asyncComputed(async () => {
-            if (!list.value) return "EXIT";
+            if (!list.value || !others.value) return "EXIT";
 
             if (list.value === "all") {
                 return musicStorage.getAllSaved();
             }
 
-            const audios = await musicStorage.getPlaylistAudios(list.value);
+            const audios = list.value === MusicStorage.OTHERS_KEY 
+                ? others.value 
+                : await musicStorage.getPlaylistAudios(list.value);
             
             const info = await Promise.all(
                 audios.map((code) => musicStorage.getSavedInfo(code)),
@@ -132,6 +155,15 @@ export default defineComponent({
         });
 
         const displayItems = computed(() => items.value?.slice(0, displayLimit.value));
+
+        watchEffect(() => {
+            if (items.value?.length === 0) {
+                if (currentPlaylist.value === list.value) {
+                    store.commit("clear");
+                }
+                pages.goToPage("Saved");
+            }
+        });
 
         watch(url, (urlValue, _, onCleanup) => {
             if (!urlValue) return;
@@ -148,6 +180,7 @@ export default defineComponent({
             displayItems,
             currentPlying,
             currentPlaylist,
+            isOthers,
             setPayload(payload: string) {
                 list.value = payload;
             },
@@ -208,6 +241,15 @@ export default defineComponent({
                     store.commit("clear");
                 }
                 pages.goToPage("Saved");
+            },
+            deleteFromPlaylist(code: string) {
+                if (!list.value) {
+                    return;
+                }
+                if (currentPlying.value?.code === code) {
+                    store.commit("next");
+                }
+                musicStorage.deleteFromPlaylist(list.value, code);
             },
             more() {
                 displayLimit.value += 10;
