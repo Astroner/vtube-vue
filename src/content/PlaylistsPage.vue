@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { computed, defineComponent } from "vue";
-
+ 
 import Page from "@/Pages/components/Page.vue";
 import { useStore } from "@/store";
 import { usePages } from "@/Pages/hooks/usePages";
