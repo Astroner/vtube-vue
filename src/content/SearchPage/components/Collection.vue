@@ -1,0 +1,42 @@
+<template>
+  <div class="collection__root">
+    <div class="collection__title">
+        {{ collection.title }}
+    </div>
+    <SearchEntry 
+        v-for="(item, index) of collection.items"
+        :key="index"
+        :entry="item"
+    />
+  </div>
+</template>
+
+<script lang="ts">
+import { CollectionSearchEntry } from "@/Responses";
+import { defineComponent, PropType } from "vue";
+import SearchEntry from "./SearchEntry.vue";
+
+export default defineComponent({
+  components: { SearchEntry },
+    props: {
+        collection: {
+            type: Object as PropType<CollectionSearchEntry['value']>,
+            required: true,
+        },
+    },
+});
+</script>
+
+<style lang="scss" scoped>
+.collection {
+    &__root {
+        border: 1px dashed black;
+
+        padding: 5px;
+    }
+    &__title {
+        font-size: 20px;
+        line-height: 24px;
+    }
+}
+</style>

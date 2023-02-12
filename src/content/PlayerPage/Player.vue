@@ -4,7 +4,7 @@
       <display-image
         v-if="info"
         class="player__display"
-        :display="info.displayImage"
+        :display="info.display"
         height="calc(100% - 10px)"
         width="calc(100% - 10px)"
         @click="interact"
@@ -81,7 +81,7 @@ import Icon from '@/components/Icon/Icon.vue';
 import { musicStorage } from '@/music-storage';
 import DisplayImage from '@/components/DisplayImage.vue';
 import { ObjectURL } from '@/helpers/classes/object-url.class';
-import { MediaInfo } from '@/Responses';
+import { YTVideo } from '@/Responses';
 
 export default defineComponent({
   components: { Icon, DisplayImage },
@@ -165,7 +165,7 @@ export default defineComponent({
       }
     });
 
-    const [, info] = asyncComputed<MediaInfo & { obj: ObjectURL | null }>(async () => {
+    const [, info] = asyncComputed<YTVideo & { obj: ObjectURL | null }>(async () => {
       if (!code.value) return "EXIT";
       if (saved.value) {
         const savedInfo = await musicStorage.getSavedInfo(code.value);
@@ -174,11 +174,12 @@ export default defineComponent({
         const obj = new ObjectURL(savedInfo.thumbnail);
         return {
           title: savedInfo.title,
-          displayImage: [{
+          display: [{
             url: obj.url,
             width: 0,
             height: 0,
           }],
+          code: code.value,
           obj,
         };
       }
@@ -195,7 +196,7 @@ export default defineComponent({
       }
       navigator.mediaSession.metadata = new MediaMetadata({
         title: info.value.title,
-        artwork: info.value.displayImage.map((item) => ({
+        artwork: info.value.display.map((item) => ({
           src: item.url,
         })),
       });

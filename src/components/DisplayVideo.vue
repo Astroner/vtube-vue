@@ -15,7 +15,9 @@
                 margin="7px 10px 0px 5px"
                 @click.self="!disableMenu && openMenu()"
             />
-            {{ title }}
+            <div class="video__text">
+                {{ title }}
+            </div>
         </div>
         <div 
             @click="e => e.stopPropagation()"
@@ -42,7 +44,7 @@
 
 <script lang="ts">
 import {
- PropType, toRef, Ref, ref, SetupContext, watchEffect, computed, 
+ PropType, toRef, ref, watchEffect, computed, defineComponent, 
 } from "vue";
 import { YTImage } from "@/Responses";
 import { useSaved } from "@/music-storage/use-saved";
@@ -52,7 +54,7 @@ import { useIsDownloading } from "@/helpers/hooks/use-is-downloading";
 import DisplayImage from './DisplayImage.vue';
 import Button from './Button.vue';
 
-export default {
+export default defineComponent({
     components: { DisplayImage, Button },
     props: {
         display: {
@@ -70,8 +72,9 @@ export default {
         active: Boolean,
         disableMenu: Boolean,
     },
-    setup(props: any, { emit }: SetupContext) {
-        const code: Ref<string> = toRef(props, 'code');
+    emits: ['play'],
+    setup(props, { emit }) {
+        const code = toRef(props, 'code');
 
         const menuState = ref(false);
 
@@ -109,7 +112,7 @@ export default {
                 menuState.value = !menuState.value;
             },
             play(e: Event) {
-                emit('click', e);
+                emit('play', e);
                 menuState.value = false;
             },
             async save() {
@@ -117,15 +120,12 @@ export default {
             },
         };
     },
-};
+});
 </script>
 
 <style lang="scss" scoped>
 .video {
     border: 1px solid black;
-
-    font-size: 20px;
-    line-height: 24px;
 
     width: 100%;
 
@@ -151,6 +151,17 @@ export default {
         height: 72px;
 
         display: flex;
+    }
+
+    &__text {
+        font-size: 20px;
+        line-height: 24px;
+
+        height: 72px;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
     }
 
     &__menu {

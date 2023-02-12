@@ -10,7 +10,7 @@ export const getPlaylistsDiff = async () => {
         try {
             const savedVideos = await storage.getAllBy("playlistAudios", "list", saved.list);
             const info = await getPlaylist(saved.list);
-            const videosMap = new Map(info.list.map((item) => [item.code, item.code]));
+            const videosMap = new Map(info.list.items.map((item) => [item.code, item.code]));
 
             const diff = new Array<{ type: "DEL" | "ADD", code: string }>();
 

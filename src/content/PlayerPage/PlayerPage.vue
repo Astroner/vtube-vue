@@ -1,5 +1,13 @@
 <template>
-  <page name="Player" shortcut shortcutIcon="play" hidden className="player-page__root">
+  <page
+    name="Player"
+    shortcut
+    shortcutIcon="play"
+    hidden
+    className="player-page__root"
+    @leave="leave"
+    auto-scroll
+  >
     <player
       margin="10px 0 20px"
       :code="currentItem?.code"
@@ -19,6 +27,7 @@
           v-if="!item.saved"
           :active="item.code === currentItem.code"
           @click="setCursor(index)"
+          @play="setCursor(index)"
           :display="item.display"
           :code="item.code"
           :title="item.title"
@@ -33,30 +42,47 @@
           disable-menu
         />
       </div>
+      <continue
+        v-if="limited"
+        @continue="more"
+      />
     </div>
   </page>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, watchEffect } from "vue";
+import {
+  computed,
+  defineComponent,
+  ref,
+  watchEffect,
+} from "vue";
 
 import Page from "@/Pages/components/Page.vue";
 import { useStore } from "@/store";
 import DisplayVideo from "@/components/DisplayVideo.vue";
 import SavedVideo from "@/components/SavedVideo.vue";
+import Continue from "@/components/Continue.vue";
 
 import Player from "./Player.vue";
 
 export default defineComponent({
   components: {
- Page, Player, DisplayVideo, SavedVideo, 
+    Page,
+    Player,
+    DisplayVideo,
+    SavedVideo,
+    Continue, 
 },
   setup() {
     const store = useStore();
 
     const currentItem = computed(() => store.state.queue.items[store.state.queue.cursor]);
+    const limited = ref(true);
 
-    const queue = computed(() => store.state.queue.items);
+    const queue = computed(() => limited.value 
+      ? store.state.queue.items.slice(0, 30) 
+      : store.state.queue.items);
 
     watchEffect(() => {
       navigator.mediaSession.setActionHandler("nexttrack", () => {
@@ -73,6 +99,13 @@ export default defineComponent({
     return {
       currentItem,
       queue,
+      limited,
+      more() {
+        limited.value = false;
+      },
+      leave() {
+        limited.value = true;
+      },
       setCursor: (index: number) => store.commit('setCursor', index),
       nextItem: () => store.commit('next'),
     };

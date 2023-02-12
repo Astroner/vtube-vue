@@ -1,8 +1,8 @@
 import { axios } from "@/helpers/axios";
-import { MediaFormat, MediaInfo } from "@/Responses";
+import { VideoFormat, YTVideo } from "@/Responses";
 
 export const getFormats = async (code: string, type = "audio") => {
-  const { data } = await axios.get<MediaFormat[]>(`/player/formats/${code}/`, {
+  const { data } = await axios.get<VideoFormat[]>(`/player/formats/${code}/`, {
     params: { type },
   });
 
@@ -10,7 +10,7 @@ export const getFormats = async (code: string, type = "audio") => {
 };
 
 export const getInfo = async (code: string) => {
-  const { data } = await axios.get<MediaInfo>(`/player/info/${code}/`);
+  const { data } = await axios.get<YTVideo>(`/player/info/${code}/`);
 
   return data;
 };

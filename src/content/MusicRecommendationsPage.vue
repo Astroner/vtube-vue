@@ -17,17 +17,17 @@
         <div>
           <div
             v-for="item of category.items"
-            :key="item.type === 'VIDEO' ? item.code : item.list"
+            :key="item.type === 'VIDEO' ? item.value.code : item.value.list"
             class="music__item"
             @click="play(item)"
           >
             <display-image
-              :display="item.display"
+              :display="item.value.display"
               width="25%"
               height="calc(100% - 10px)"
               margin="5px 10px 0 5px"
             />
-            {{ item.title }}
+            {{ item.value.title }}
           </div>
         </div>
       </div>
@@ -74,10 +74,10 @@ export default defineComponent({
       play: (item: Recommendation) => {
         pages.goToPage("Player");
         if (item.type === "VIDEO") {
-          store.commit("setQueue", [item]);
+          store.commit("setQueue", [item.value]);
         } else {
           store.dispatch('playDynamicPlaylist', {
-            list: item.list, code: item.code,
+            list: item.value.list, code: item.value.code,
           });
         }
       },

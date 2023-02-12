@@ -79,10 +79,9 @@ export const queue: Module<QueueState, Modules> = {
         payload.list,
         payload.code,
       );
-
       if (store.state.currentRequestId !== requestId) return;
-
-      store.commit('setQueue', playlist.list);
+      
+      store.commit('setQueue', playlist.list.items);
       store.commit('completeLoading');
     },
     async playPlaylist(store, payload: { list: string, shuffle?: boolean }) {
@@ -95,7 +94,7 @@ export const queue: Module<QueueState, Modules> = {
 
       store.commit("setPlaylist", {
         items: playlist.list,
-        list: playlist.list,
+        list: playlist.list.items,
         shuffle: payload.shuffle,
       });
       store.commit('completeLoading');

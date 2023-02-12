@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="el"
     :style="
       typeof pageIndex === 'number'
         ? { zIndex: pageIndex + 1, width: `calc(100% - ${pageIndex * 2}px)` }
@@ -21,6 +22,7 @@ import {
   defineComponent,
   inject,
   PropType,
+  ref,
   watch,
 } from "vue";
 
@@ -40,10 +42,13 @@ export default defineComponent({
     title: [Boolean, String],
     className: String,
     shortcutIconLeftShift: Number,
+    autoScroll: Boolean,
   },
   emits: ["payload", "enter", "leave"],
   setup(props, ctx) {
     const pagesAPI = inject(PagesAPIKey, PagesAPIDefault);
+    
+    const el = ref<HTMLDivElement>();
     
     const id = uuid();
     const pageIndex = pagesAPI.register(id, {
@@ -65,11 +70,19 @@ export default defineComponent({
         ctx.emit("payload", pagesAPI.pagePayload.value);
         ctx.emit("enter");
       } else {
-        setTimeout(() => ctx.emit("leave"), 400);
+        setTimeout(() => {
+          ctx.emit("leave");
+          if (props.autoScroll && el.value) {
+            el.value.scrollTo({
+              top: 0,
+            });
+          }
+        }, 400);
       }
     });
 
     return {
+      el,
       isActive,
       pageIndex,
       isVisible,

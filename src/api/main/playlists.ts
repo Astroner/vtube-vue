@@ -1,9 +1,8 @@
 import { axios } from "@/helpers/axios";
-
-import { Playlist, PlaylistWithID } from "@/Responses";
+import { YTPlaylist, YTPlaylistWithID } from "@/Responses";
 
 export const getDynamicPlaylist = async (token: string, list: string, code: string) => {
-  const { data } = await axios.get<Playlist>(`/playlist/dynamic/${list}/${code}/`, {
+  const { data } = await axios.get<YTPlaylist>(`/playlist/dynamic/${list}/${code}/`, {
     headers: {
       Authorization: token,
     },
@@ -13,13 +12,13 @@ export const getDynamicPlaylist = async (token: string, list: string, code: stri
 };
 
 export const getPlaylist = async (list: string) => {
-  const { data } = await axios.get<Playlist>(`/playlist/${list}/`);
+  const { data } = await axios.get<YTPlaylist>(`/playlist/${list}/`);
 
   return data;
 };
 
 export const getUserPlaylists = async (token: string) => {
-  const { data } = await axios.get<PlaylistWithID[]>("/playlist/all", {
+  const { data } = await axios.get<YTPlaylistWithID[]>("/playlist/all", {
     headers: {
       Authorization: token,
     },

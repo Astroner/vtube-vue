@@ -1,275 +1,180 @@
 <template>
-  <page name="Search" title>
-    <div v-if="isOnline">
-      <div class="search__request">
-        - I'm trying to find <span
-          tabindex="0"
-          role="textbox"
-          contenteditable
-          :class="[
-            'search__value',
-            !value && 'search__value--placeholder'
-          ]"
-          @input="value = $event.currentTarget.textContent"
+  <Page name="Search" title>
+    <Input style="margin-bottom: 20px" v-model:value="input" placeholder="I'm searching..." />
+    <fade-in>
+      <div
+        v-if="results?.music.length && results?.youtube.length" 
+        style="display: flex; margin-bottom: 20px"
+      >
+        <Button 
+          :class="{
+            search__button: true,
+            'search__button--active': shows === 'm',
+            'search__button--default': shows === 'yt',
+          }"
+          @click="shows = 'm'"
         >
-          {{ value }}
-        </span>
+          Music
+        </Button>
+        <Button
+          :class="{
+            search__button: true,
+            'search__button--active': shows === 'yt',
+            'search__button--default': shows === 'm',
+          }"
+          style="margin-left: 10px"
+          @click="shows = 'yt'"
+        >
+          Videos
+        </Button>
       </div>
-      <transition name="question">
-        <div class="search__second" v-if="processed">
-          - Is it a {{
-            processed.type === "DYNAMIC_PLAYLIST"
-            ? "dynamic playlist"
-            : processed.type === "PLAYLIST"
-            ? "playlist"
-            : "video"
-          }}?
-        </div>
-      </transition>
-      <transition name="answers">
-        <div class="search__result search__answers" v-if="processed">
-          <button
-            :class="[isSearching && 'active']"
-            @click="isSearching = true"
-            :disabled="isSearching"
-          >
-            Yes
-          </button>
-          <button
-            @click="value = ''"
-            :disabled="isSearching"
-          >
-            Clear
-          </button>
-        </div>
-      </transition>
-      <transition name="question">
-        <div class="search__second" v-if="isSearching">
-          - Ok, searching<dots :active="isLoading" />
-        </div>
-      </transition>
-      <transition name="question">
-        <div v-if="info" class="search__second">
-          - Found!
-        </div>
-      </transition>
-      <transition name="answers">
-        <div v-if="info" class="search__second search__info__border">
-          <display-image
-            class="search__info__image"
-            :display="info.type === 'VIDEO' ? info.info.displayImage : info.info.display"
-          />
-          <div class="search__info__title">
-            {{ info.info.title }}
-          </div>
-        </div>
-      </transition>
-      <transition name="answers">
-        <div v-if="info" class="search__result search__answers">
-          <button
-            @click="play()"
-          >
-            Play
-          </button>
-          <button
-            @click="reset()"
-          >
-            Clear
-          </button>
-          <button
-            v-if="info.type === 'PLAYLIST'"
-            @click="shuffle()"
-          >
-            Shuffle
-          </button>
-        </div>
-      </transition>
-    </div>
-    <heading v-else center secondary>
-      Offline
-    </heading>
+    </fade-in>
+    <fade-in>
+      <div v-if="results" style="position: relative">
+        <results
+          :class="{
+            search__group: true,
+            'search__group--visible': shows === 'm',
+            'search__group--hidden': shows === 'yt',
+          }"
+          :entries="results.music"
+        />
+        <results
+          :class="{
+            search__group: true,
+            'search__group--visible': shows === 'yt',
+            'search__group--hidden': shows === 'm',
+          }"
+          :entries="results.youtube"
+        />
+      </div>
+    </fade-in>
+    <fade-in>
+      <dots v-if="!results" />
+    </fade-in>
   </page>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {
+  defineComponent,
+  ref,
+  watch,
+  watchEffect,
+} from "vue";
 
 import Page from "@/Pages/components/Page.vue";
-import { useStore } from "@/store";
-import DisplayImage from "@/components/DisplayImage.vue";
-import { usePages } from "@/Pages/hooks/usePages";
-import Heading from "@/components/Heading.vue";
-import { useIsOnline } from "@/helpers/hooks/use-is-online";
+import Input from "@/components/Input.vue";
+import { debounce } from "@/helpers/functions/debounce";
+import { searchMusic, searchYoutube } from "@/api/main/search";
+import { asyncComputed } from "@/helpers/hooks/asyncComputed";
+import FadeIn from "@/components/FadeIn.vue";
+import Button from "@/components/Button.vue";
 
-import Dots from "./Dots.vue";
-import { useSearch } from "./useSearch";
+import Dots from "./components/Dots.vue";
+import Results from "./components/Results.vue";
 
 export default defineComponent({
   components: {
- Page, Dots, DisplayImage, Heading, 
-},
-  setup() {
-    const store = useStore();
-    const pages = usePages();
-    const isOnline = useIsOnline();
+    Page,
+    Input,
+    FadeIn,
+    Dots,
+    Button,
+    Results,
+  },
+  setup() {    
+    const shows = ref<"yt" | "m">("m");
 
-    const {
-      value,
-      processed,
-      isLoading,
-      isSearching,
-      info,
-      reset,
-    } = useSearch();
+    const input = ref("");
+    const query = ref("");
+
+    const [, results] = asyncComputed(async () => {
+      if (!query.value) {
+        return {
+          music: [],
+          youtube: [],
+        };
+      }
+
+      const [youtube, music] = await Promise.all([
+        searchYoutube(query.value),
+        searchMusic(query.value),
+      ]);
+
+      return {
+        youtube, music,
+      };
+    });
+
+    const search = debounce(async (text: string) => {
+      query.value = text.trim();
+    }, 500);
+
+    watch(input, (value) => {
+      search(value);
+    });
+
+    watchEffect(() => {
+      if (!results.value) return;
+
+      if (results.value.music.length === 0 && results.value.youtube.length === 0) {
+        shows.value = 'm';
+      } else if (results.value.music.length === 0) {
+        shows.value = 'yt';
+      } else if (results.value.youtube.length === 0) {
+        shows.value = 'm';
+      }
+    });
 
     return {
-      value,
-      processed,
-      isSearching,
-      isLoading,
-      isOnline,
-      info,
-      play: () => {
-        if (!info.value) return;
-        if (info.value.type === "VIDEO") {
-          store.commit("setQueue", [{
-            title: info.value.info.title,
-            display: info.value.info.displayImage,
-            code: info.value.code,
-          }]);
-        }
-        if (info.value.type === "DYNAMIC_PLAYLIST" || info.value.type === "PLAYLIST") {
-          store.commit("setQueue", info.value.info.list);
-        }
-        reset();
-        pages.goToPage("Player");
-      },
-      reset,
-      shuffle: () => {
-        if (info.value?.type === "PLAYLIST") {
-          store.commit("setQueue", info.value.info.list.sort(() => Math.random() * 2 - 1));
-          reset();
-          pages.goToPage("Player");
-        }
-      },
+      input,
+      results,
+      shows,
     };
   },
 });
 </script>
 
 <style lang="scss" scoped>
-.question-enter-active,
-.question-leave-active,
-.answers-enter-active,
-.answers-leave-active {
-  transition: opacity .3s, transform .3s;
-}
-
-.question-leave-active,
-.answers-enter-active {
-  transition-delay: .2s;
-}
-
-.question-enter-from,
-.question-leave-to,
-.answers-enter-from,
-.answers-leave-to  {
-  opacity: 0;
-  transform: translateY(10px);
-}
 .search {
-  &__value {
-    text-decoration: underline;
+  &__button {
+    transition: width .3s ease;
 
-    word-wrap: break-word;
-
-    background-color: transparent;
-
-    outline: none;
-
-    border: none;
-
-    &--placeholder {
-      &::after {
-        content: "Print";
-
-        color: #919191;
-
-        text-decoration: underline;
-      }
+    &--active {
+      width: calc(75%);
+    }
+    &--default {
+      width: calc(25%);
     }
   }
-  &__request {
-    font-size: 30px;
-  }
-  &__second {
-    font-size: 30px;
 
-    margin-top: 20px;
-  }
-  &__answers {
-    font-size: 30px;
+  &__group {
+    position: absolute;
+    top: 0;
+    left: 0;
 
-    margin-top: 20px;
+    width: 100%;
 
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    overflow: hidden;
+    
+    &--visible {
+      transition: opacity .3s .5s, max-height .3s;
 
-    button {
-      background-color: #fff;
+      opacity: 1;
+      
+      z-index: 1;
 
-      border: 1px solid black;
-
-      width: calc(50% - 5px);
-
-      transition: background-color .3s, color .3s;
-
-      &.active {
-        background-color: #000;
-        color: white;
-      }
-
-      &:active:not(:disabled) {
-        background-color: #000;
-
-        color: white;
-      }
-
-      &:nth-child(n + 3) {
-        margin-top: 10px;
-      }
+      max-height: 20000px;
     }
-  }
-  &__info {
-    &__border {
-      width: 100%;
+    &--hidden {
+      transition: opacity .3s, max-height .3s;
 
-      border: 1px dashed black;
+      opacity: 0;
 
-      padding: 5px;
-    }
-    &__image {
-      width: 100%;
+      z-index: 0;
 
-      &::after {
-        content: "";
-
-        display: block;
-
-        padding-bottom: 55%;
-      }
-    }
-    &__title {
-      font-size: 25px;
-      text-align: center;
-
-      margin-top: 10px;
-      margin-bottom: 10px;
-
-      text-align: center;
-
-      padding: 0 10px;
+      max-height: 0;
     }
   }
 }

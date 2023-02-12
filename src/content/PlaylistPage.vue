@@ -41,6 +41,7 @@
                     :title="item.title"
                     :active="item.code === currentVideo?.code"
                     @click="playFromPosition(index)"
+                    @play="playFromPosition(index)"
                 />
             </div> 
         </fade-in>
@@ -54,7 +55,7 @@ import { computed, ref, watch } from 'vue';
 import { getPlaylist } from '@/api/main/playlists';
 import { asyncComputed } from '@/helpers/hooks/asyncComputed';
 import Page from '@/Pages/components/Page.vue';
-import { PlaylistWithID } from '@/Responses';
+import { YTPlaylistWithID } from '@/Responses';
 import DisplayVideo from '@/components/DisplayVideo.vue';
 import DisplayImage from '@/components/DisplayImage.vue';
 import Button from '@/components/Button.vue';
@@ -80,7 +81,7 @@ export default {
         const pages = usePages();
         const savedPlaylists = useDBObservable(musicStorage.savedPlaylists);
 
-        const playlist = ref<PlaylistWithID | null>(null);
+        const playlist = ref<YTPlaylistWithID | null>(null);
         
         const playRequest = ref<null | { type: "P" | "S", i: number | null }>(null);
 
@@ -98,7 +99,7 @@ export default {
         const [, items] = asyncComputed(async () => {
             if (!playlist.value) return "EXIT";
             const { list } = await getPlaylist(playlist.value.list);
-            return list;
+            return list.items;
         });
 
         watch([playRequest, items], ([request, list]) => {
@@ -137,7 +138,7 @@ export default {
 
                 musicStorage.savePlaylist(playlist.value.list);
             },
-            setPayload(payload: PlaylistWithID | null) {
+            setPayload(payload: YTPlaylistWithID | null) {
                 playlist.value = payload;
             },
             play() {

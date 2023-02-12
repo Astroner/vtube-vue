@@ -1,23 +1,18 @@
 <template>
-  <span>
+  <div class="dots__root">
     <span :class="['dots__dot', counter > 0 ? 'dots__dot--visible' : 'dots__dot--hidden']">.</span>
     <span :class="['dots__dot', counter > 1 ? 'dots__dot--visible' : 'dots__dot--hidden']">.</span>
     <span :class="['dots__dot', counter > 2 ? 'dots__dot--visible' : 'dots__dot--hidden']">.</span>
-  </span>
+  </div>
 </template>
 
 <script lang="ts">
 import {
-  defineComponent, onMounted, ref, toRefs, watchEffect,
+  defineComponent, onMounted, onUnmounted, ref,
 } from "vue";
 
 export default defineComponent({
-  props: {
-    active: Boolean,
-  },
-  setup(props) {
-    const { active } = toRefs(props);
-
+  setup() {
     const counter = ref(0);
     const interval = ref<null | number>(null);
 
@@ -26,11 +21,11 @@ export default defineComponent({
         counter.value = (counter.value + 1) % 4;
       }, 300);
     });
-
-    watchEffect(() => {
-      if (active.value) return;
-      if (interval.value) clearInterval(interval.value);
-      counter.value = 4;
+    
+    onUnmounted(() => {
+      if (interval.value) {
+        clearInterval(interval.value);
+      }
     });
 
     return {
@@ -42,8 +37,17 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .dots {
+  &__root {
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+  }
   &__dot {
     transition: opacity .3s;
+
+    font-size: 30px;
+    line-height: 5px;
 
     &--visible {
       opacity: 1;

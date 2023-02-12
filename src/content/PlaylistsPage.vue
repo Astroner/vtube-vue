@@ -24,10 +24,10 @@ import { usePages } from "@/Pages/hooks/usePages";
 import { getMidItem } from "@/helpers/functions/getMidItem";
 import { asyncComputed } from "@/helpers/hooks/asyncComputed";
 import { getUserPlaylists } from "@/api/main/playlists";
-import { PlaylistWithID } from "@/Responses";
 import DisplayPlaylist from "@/components/DisplayPlaylist.vue";
 import { useIsOnline } from "@/helpers/hooks/use-is-online";
 import Heading from "@/components/Heading.vue";
+import { YTPlaylistWithID } from "@/Responses";
 
 export default defineComponent({
   components: { Page, DisplayPlaylist, Heading },
@@ -48,7 +48,7 @@ export default defineComponent({
     return {
       isOnline,
       playlists,
-      play: (list: PlaylistWithID) => {
+      play: (list: YTPlaylistWithID) => {
         pages.goToPage("Playlist", list);
       },
       getMidItem,

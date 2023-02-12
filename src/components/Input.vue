@@ -4,9 +4,6 @@
           {{ title }}
         </div> 
         <div class="input__container">
-            <!-- <div class="input__hide" v-if="password && value">
-                {{ new Array(value.length).fill("-").join("") }}
-            </div> -->
             <input 
                 :class="{
                     'input': true,
@@ -21,21 +18,24 @@
                 @focus="state = true"
                 @blur="state = false"
                 :type="password ? 'password' : 'text'"
+                :placeholder="placeholder"
             />
         </div>
       </div>
 </template>
 
 <script lang="ts">
-import { ref, SetupContext } from 'vue';
+import { defineComponent, ref } from 'vue';
 
-export default {
+export default defineComponent({
     props: {
         title: String,
         value: String,
         password: Boolean,
+        placeholder: String,
     },
-    setup(_: unknown, ctx: SetupContext) {
+    emits: ["update:value"],
+    setup(_, ctx) {
         const state = ref<boolean>(false);
 
         return {
@@ -45,7 +45,7 @@ export default {
             },
         };
     },
-};
+});
 </script>
 
 <style lang="scss" scoped>

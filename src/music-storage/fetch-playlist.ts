@@ -9,6 +9,6 @@ export const fetchPlaylist = async (list: string) => {
         list,
         thumbnail,
         title: playlist.title,
-        videos: playlist.list.map((item) => item.code),
+        videos: playlist.list.items.map((item) => item.code),
     };
 };
