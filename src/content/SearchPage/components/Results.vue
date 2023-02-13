@@ -1,20 +1,24 @@
 <template>
     <div>
         <div v-for="(entry, index) of entries" :key="index" style="margin-bottom: 10px">
-            <Collection v-if="entry.type === 'COLLECTION'" :collection="entry.value" />
-            <DisplayEntry v-else :entry="entry" />
+            <Collection
+                v-if="entry.type === 'COLLECTION'"
+                :collection="entry.value"
+                @select="(entry) => $emit('select', entry)"
+            />
+            <DisplayEntry v-else :entry="entry" @select="(entry) => $emit('select', entry)" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { PropType } from 'vue';
+import { defineComponent, PropType } from 'vue';
 
-import { SearchEntry } from '@/Responses';
+import { CollectionSearchEntry, SearchEntry } from '@/Responses';
 import DisplayEntry from "./SearchEntry.vue";
 import Collection from "./Collection.vue";
 
-export default {
+export default defineComponent({
     components: { DisplayEntry, Collection },
     props: {
         entries: {
@@ -22,5 +26,8 @@ export default {
             required: true,
         },
     },
-};
+    emits: {
+        select: (data: Exclude<SearchEntry, CollectionSearchEntry>) => !!data,
+    },
+});
 </script>

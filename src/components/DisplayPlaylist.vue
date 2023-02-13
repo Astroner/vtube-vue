@@ -61,13 +61,14 @@ export default defineComponent({
         width: 100%;
         height: 100%;
 
-        background-color: rgba($color: #fff, $alpha: .4);
+        background-color: rgba($color: #fff, $alpha: .6);
 
         display: flex;
         align-items: center;
         justify-content: center;
 
         font-size: 25px;
+        text-align: center;
     }
 }
 </style>

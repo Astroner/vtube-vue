@@ -65,21 +65,35 @@ export default defineComponent({
       return pageIndex <= pagesAPI.currentIndex.value;
     });
 
-    watch(isActive, (activeValue) => {
-      if (activeValue) {
-        ctx.emit("payload", pagesAPI.pagePayload.value);
-        ctx.emit("enter");
-      } else {
-        setTimeout(() => {
-          ctx.emit("leave");
+    watch(
+      [isActive, pagesAPI.pagePayload], 
+      ([currentActive, currentPayload], [prevActive]) => {
+        const isEnter = !prevActive && currentActive;
+        const pagePayloadUpdate = prevActive && currentActive;
+        const isLeave = prevActive && !currentActive;
+
+        if (isEnter) {
+          ctx.emit("enter");
+          ctx.emit("payload", currentPayload);
+        } else if (pagePayloadUpdate) {
+          ctx.emit("payload", currentPayload);
           if (props.autoScroll && el.value) {
             el.value.scrollTo({
               top: 0,
             });
           }
-        }, 400);
-      }
-    });
+        } else if (isLeave) {
+          setTimeout(() => {
+            ctx.emit("leave");
+            if (props.autoScroll && el.value) {
+              el.value.scrollTo({
+                top: 0,
+              });
+            }
+          }, 400);
+        }
+      },
+    );
 
     return {
       el,

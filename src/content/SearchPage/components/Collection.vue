@@ -7,17 +7,21 @@
         v-for="(item, index) of collection.items"
         :key="index"
         :entry="item"
+        @select="(entry) => {$emit('select', entry)}"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { CollectionSearchEntry } from "@/Responses";
+import { CollectionSearchEntry, SearchEntry as SE } from "@/Responses";
 import { defineComponent, PropType } from "vue";
 import SearchEntry from "./SearchEntry.vue";
 
 export default defineComponent({
-  components: { SearchEntry },
+    components: { SearchEntry },
+    emits: {
+        select: (entry: Exclude<SE, CollectionSearchEntry>) => !!entry,
+    },  
     props: {
         collection: {
             type: Object as PropType<CollectionSearchEntry['value']>,
@@ -37,6 +41,8 @@ export default defineComponent({
     &__title {
         font-size: 20px;
         line-height: 24px;
+
+        margin-bottom: 5px;
     }
 }
 </style>

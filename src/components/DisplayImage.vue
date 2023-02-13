@@ -44,21 +44,18 @@ export default defineComponent({
 
       const rect = el.value.getBoundingClientRect();
       
-      const rectSize = rect.width * rect.height;
-      
-      for (const [index, image] of display.value.entries()) {
-        const imageSize = image.width * image.height;
+      let currentDiff = Infinity;
+      let selected!: YTImage;
 
-        const diff = Math.abs(imageSize - rectSize);
+      for (const image of display.value) {
+        const diff = Math.abs(rect.width - image.width);
 
-        if (diff / rectSize < 0.2) {
-          return image.url;
-        }
-        if (index === display.value.length - 1) {
-          return image.url;
+        if (diff < currentDiff) {
+          selected = image;
+          currentDiff = diff;
         }
       }
-      return undefined;
+      return selected.url;
     });
 
     return {

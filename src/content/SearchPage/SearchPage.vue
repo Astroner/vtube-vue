@@ -38,6 +38,7 @@
             'search__group--hidden': shows === 'yt',
           }"
           :entries="results.music"
+          @select="action"
         />
         <results
           :class="{
@@ -46,6 +47,7 @@
             'search__group--hidden': shows === 'm',
           }"
           :entries="results.youtube"
+          @select="action"
         />
       </div>
     </fade-in>
@@ -70,6 +72,9 @@ import { searchMusic, searchYoutube } from "@/api/main/search";
 import { asyncComputed } from "@/helpers/hooks/asyncComputed";
 import FadeIn from "@/components/FadeIn.vue";
 import Button from "@/components/Button.vue";
+import { CollectionSearchEntry, SearchEntry } from "@/Responses";
+import { useStore } from "@/store";
+import { usePages } from "@/Pages/hooks/usePages";
 
 import Dots from "./components/Dots.vue";
 import Results from "./components/Results.vue";
@@ -83,7 +88,10 @@ export default defineComponent({
     Button,
     Results,
   },
-  setup() {    
+  setup() {
+    const store = useStore();
+    const pages = usePages();
+
     const shows = ref<"yt" | "m">("m");
 
     const input = ref("");
@@ -116,11 +124,12 @@ export default defineComponent({
     });
 
     watchEffect(() => {
-      if (!results.value) return;
-
-      if (results.value.music.length === 0 && results.value.youtube.length === 0) {
-        shows.value = 'm';
-      } else if (results.value.music.length === 0) {
+      if (
+        !results.value 
+        || (results.value.music.length === 0 && results.value.youtube.length === 0)
+      ) return;
+      
+      if (results.value.music.length === 0) {
         shows.value = 'yt';
       } else if (results.value.youtube.length === 0) {
         shows.value = 'm';
@@ -131,6 +140,31 @@ export default defineComponent({
       input,
       results,
       shows,
+      action(entry: Exclude<SearchEntry, CollectionSearchEntry>) {
+        if (entry.type === "VIDEO") {
+          store.commit('setQueue', [{
+            title: entry.value.title,
+            display: entry.value.display,
+            code: entry.value.code,
+          }]);
+        } else if (entry.type === "PLAYLIST") {
+          pages.goToPage('Playlist', {
+            list: entry.value.list,
+            title: entry.value.title,
+            display: entry.value.display,
+          });
+        } else if (entry.type === "DYNAMIC_PLAYLIST") {
+          store.dispatch('playDynamicPlaylist', {
+            list: entry.value.list,
+            code: entry.value.code,
+          });
+          pages.goToPage("Player");
+        } else if (entry.type === "CHANNEL") {
+          if (shows.value === 'm') {
+            pages.goToPage("Artist", entry.value);
+          }
+        }
+      },
     };
   },
 });
