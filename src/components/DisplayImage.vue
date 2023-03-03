@@ -37,7 +37,6 @@ export default defineComponent({
   },
   setup(props) {
     const { display } = toRefs(props);
-
     const el = ref<HTMLDivElement>();
     const url = computed<string | undefined>(() => {
       if (!el.value) return undefined;
@@ -45,7 +44,7 @@ export default defineComponent({
       const rect = el.value.getBoundingClientRect();
       
       let currentDiff = Infinity;
-      let selected!: YTImage;
+      let selected: YTImage | undefined;
 
       for (const image of display.value) {
         const diff = Math.abs(rect.width - image.width);
@@ -55,7 +54,7 @@ export default defineComponent({
           currentDiff = diff;
         }
       }
-      return selected.url;
+      return selected?.url;
     });
 
     return {

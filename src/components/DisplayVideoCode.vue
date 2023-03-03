@@ -4,7 +4,7 @@
     :active="active"
     :code="code"
     :title="info?.title ?? ''"
-    :display="info?.displayImage ?? []"
+    :display="info?.display ?? []"
   />
 </template>
 

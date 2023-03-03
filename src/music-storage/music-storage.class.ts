@@ -116,6 +116,8 @@ export class MusicStorage {
             storage.clear("all"),
             storage.clear("audios"),
             storage.clear("playlists"),
+            storage.clear("playlistAudios"),
+            storage.clear("queue"),
         ]);
     }
 
