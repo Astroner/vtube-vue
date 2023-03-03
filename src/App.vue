@@ -13,6 +13,7 @@
         <saved-playlist-page />
         <queue-page />
         <artist-page />
+        <channel-page />
       </pages>
     </div>
   </div>
@@ -33,6 +34,7 @@ import QueuePage from './content/QueuePage.vue';
 import ArtistPage from './content/ArtistPage/ArtistPage.vue';
 import { musicStorage } from './music-storage';
 import { useIsOnline } from './helpers/hooks/use-is-online';
+import ChannelPage from './content/ChannelPage/ChannelPage.vue';
 
 export default defineComponent({
   components: {
@@ -47,6 +49,7 @@ export default defineComponent({
     SavedPlaylistPage,
     QueuePage,
     ArtistPage,
+    ChannelPage,
   },
   name: 'App',
   setup() {

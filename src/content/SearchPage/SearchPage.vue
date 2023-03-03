@@ -162,6 +162,8 @@ export default defineComponent({
         } else if (entry.type === "CHANNEL") {
           if (shows.value === 'm') {
             pages.goToPage("Artist", entry.value);
+          } else {
+            pages.goToPage("Channel", entry.value);
           }
         }
       },

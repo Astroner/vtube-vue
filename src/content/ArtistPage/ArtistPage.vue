@@ -6,7 +6,6 @@
     @payload="init"
     @leave="leave"
     :title="channel?.title"
-    style="overflow-x: hidden; overflow-y: auto;"
   >
     <div class="artist__display">
       <display-image

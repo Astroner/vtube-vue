@@ -119,6 +119,7 @@ export default defineComponent({
 
   padding: 10px;
 
+  overflow-x: hidden;
   overflow-y: auto;
 }
 

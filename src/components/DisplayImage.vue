@@ -29,7 +29,6 @@ export default defineComponent({
     display: {
       type: Array as PropType<YTImage[]>,
       required: true,
-      default: () => [],
     },
     height: String,
     width: String,
