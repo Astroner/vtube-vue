@@ -26,8 +26,8 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
+import { CollectionSearchEntry, SearchEntry } from "@dogonis/vtube-client";
 
-import { CollectionSearchEntry, SearchEntry } from "@/Responses";
 import DisplayVideo from "@/components/DisplayVideo.vue";
 import DisplayPlaylist from "@/components/DisplayPlaylist.vue";
 import { useCurrentPlying } from "@/helpers/hooks/use-current-playing";

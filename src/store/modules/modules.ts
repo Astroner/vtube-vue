@@ -1,4 +1,4 @@
-import { YTImage } from "@/Responses";
+import { Session, YTImage } from "@dogonis/vtube-client";
 
 export interface QueueItem {
   title: string,
@@ -18,7 +18,7 @@ export interface QueueState {
 }
 
 export interface User {
-  token: string | null,
+  session: Session | null,
   info: null | {
     username: string,
   }

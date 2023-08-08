@@ -1,18 +1,21 @@
-import { getInfo, signIn } from "@/api/main/user";
 import { Module } from "vuex";
+import { Session } from "@dogonis/vtube-client";
+
+import { vtube } from "@/helpers/vtube-client";
+
 import { User, Modules } from "./modules";
 
 export const user: Module<User, Modules> = {
   state: {
-    token: null,
+    session: null,
     info: null,
   },
   mutations: {
-    setToken(state, token: string) {
-      state.token = token;
+    setSession(state, session: Session) {
+      state.session = session;
     },
     resetToken(state) {
-      state.token = null;
+      state.session = null;
       state.info = null;
     },
     setInfo(state, info: Exclude<User['info'], null>) {
@@ -22,8 +25,8 @@ export const user: Module<User, Modules> = {
   actions: {
     async login(store, payload: { username: string, password: string }) {
       try {
-        const data = await signIn(payload.username, payload.password);
-        store.commit("setToken", data.token);
+        const session = await vtube.user.signIn(payload.username, payload.password);
+        store.commit("setSession", session);
         store.dispatch("fetchInfo");
         return "SUCCESS";
       } catch (e) {
@@ -31,9 +34,10 @@ export const user: Module<User, Modules> = {
       }
     },
     async fetchInfo(store) {
-      if (!store.state.token) return "ERROR";
+      if (!store.state.session) return "ERROR";
       try {
-        const data = await getInfo(store.state.token);
+        const data = await store.state.session.userInfo();
+        
         store.commit("setInfo", data);
         return "OK";
       } catch (e) {

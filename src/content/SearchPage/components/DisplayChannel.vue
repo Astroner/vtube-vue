@@ -19,9 +19,10 @@
 </template>
 
 <script lang="ts">
-import DisplayImage from "@/components/DisplayImage.vue";
-import { YTImage } from "@/Responses";
 import { defineComponent, PropType } from "vue";
+import { YTImage } from "@dogonis/vtube-client";
+
+import DisplayImage from "@/components/DisplayImage.vue";
 
 export default defineComponent({
   components: { DisplayImage },

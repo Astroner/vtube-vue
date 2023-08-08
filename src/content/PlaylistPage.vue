@@ -51,11 +51,10 @@
 
 <script lang="ts">
 import { computed, ref, watch } from 'vue';
+import { YTPlaylistWithID } from '@dogonis/vtube-client';
 
-import { getPlaylist } from '@/api/main/playlists';
 import { asyncComputed } from '@/helpers/hooks/asyncComputed';
 import Page from '@/Pages/components/Page.vue';
-import { YTPlaylistWithID } from '@/Responses';
 import DisplayVideo from '@/components/DisplayVideo.vue';
 import DisplayImage from '@/components/DisplayImage.vue';
 import Button from '@/components/Button.vue';
@@ -66,6 +65,7 @@ import { QueueItem } from '@/store/modules/modules';
 import Icon from '@/components/Icon/Icon.vue';
 import { musicStorage } from '@/music-storage';
 import { useDBObservable } from '@/helpers/hooks/use-db-observable';
+import { vtube } from '@/helpers/vtube-client';
 
 export default {
     components: { 
@@ -98,7 +98,7 @@ export default {
     
         const [, items] = asyncComputed(async () => {
             if (!playlist.value) return "EXIT";
-            const { list } = await getPlaylist(playlist.value.list);
+            const { list } = await vtube.getPlaylist(playlist.value.list);
             return list.items;
         });
 

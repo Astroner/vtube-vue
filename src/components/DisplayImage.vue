@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { YTImage } from "@/Responses";
+import { YTImage } from "@dogonis/vtube-client";
 import {
   computed,
   defineComponent,

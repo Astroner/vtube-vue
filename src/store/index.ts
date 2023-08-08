@@ -1,6 +1,8 @@
 import { InjectionKey } from 'vue';
 import { createStore, useStore as baseUseStore } from 'vuex';
 
+import { vtube } from '@/helpers/vtube-client';
+
 import { user } from "./modules/user.module";
 import { queue } from "./modules/queue.module";
 
@@ -10,20 +12,20 @@ export const store = createStore({
     queue,
   },
   plugins: [
-    (initialStore) => {
+    async (initialStore) => {
       const tokenKey = "app__storage__token";
       const token = localStorage.getItem(tokenKey);
       if (token) {
-        initialStore.state.user.token = token;
+        initialStore.state.user.session = await vtube.user.restoreSession(token);
       }
 
       initialStore.subscribe((_, state) => {
-        if (state.user.token) localStorage.setItem(tokenKey, state.user.token);
+        if (state.user.session) localStorage.setItem(tokenKey, state.user.session.getToken());
         else localStorage.removeItem(tokenKey);
       });
     },
     async (initialStore) => {
-      if (initialStore.state.user.token) {
+      if (initialStore.state.user.session) {
         setTimeout(() => store.dispatch("fetchInfo"), 0);
       }
     },

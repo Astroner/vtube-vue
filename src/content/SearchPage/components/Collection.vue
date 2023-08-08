@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { CollectionSearchEntry, SearchEntry as SE } from "@/Responses";
+import { CollectionSearchEntry, SearchEntry as SE } from "@dogonis/vtube-client";
 import { defineComponent, PropType } from "vue";
 import SearchEntry from "./SearchEntry.vue";
 

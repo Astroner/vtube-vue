@@ -1,9 +1,9 @@
-import { getPlaylist } from "@/api/main/playlists";
 import { axios } from "@/helpers/axios";
 import { getMidItem } from "@/helpers/functions/getMidItem";
+import { vtube } from "@/helpers/vtube-client";
 
 export const fetchPlaylist = async (list: string) => {
-    const playlist = await getPlaylist(list);
+    const playlist = await vtube.getPlaylist(list);
 
     const thumbnail = await axios.get<Blob>(getMidItem(playlist.display).url, {
         responseType: 'blob',

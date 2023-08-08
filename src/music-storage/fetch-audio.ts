@@ -1,6 +1,6 @@
-import { getFormats, getInfo } from "@/api/main/player";
 import { axios } from "@/helpers/axios";
 import { getMidItem } from "@/helpers/functions/getMidItem";
+import { vtube } from "@/helpers/vtube-client";
 
 export type FetchedAudio = {
     audio: Blob,
@@ -11,8 +11,8 @@ export type FetchedAudio = {
 
 export const fetchAudio = async (code: string): Promise<FetchedAudio> => {
     const [info, formats] = await Promise.all([
-        getInfo(code),
-        getFormats(code, "audio"),
+        vtube.video.info(code),
+        vtube.video.formats(code, "audio"),
     ]);
 
     const format = getMidItem(formats);

@@ -1,6 +1,6 @@
 import { Module } from "vuex";
 
-import { getDynamicPlaylist, getPlaylist } from "@/api/main/playlists";
+import { vtube } from "@/helpers/vtube-client";
 
 import { Modules, QueueItem, QueueState } from "./modules";
 
@@ -69,13 +69,12 @@ export const queue: Module<QueueState, Modules> = {
   },
   actions: {
     async playDynamicPlaylist(store, payload: { list: string, code: string }) {
-      if (!store.rootState.user.token) return;
+      if (!store.rootState.user.session) return;
 
       store.commit('registerLoading');
       const requestId = store.state.currentRequestId;
 
-      const playlist = await getDynamicPlaylist(
-        store.rootState.user.token,
+      const playlist = await store.rootState.user.session.getDynamicPlaylist(
         payload.list,
         payload.code,
       );
@@ -88,7 +87,7 @@ export const queue: Module<QueueState, Modules> = {
       store.commit('registerLoading');
       const requestId = store.state.currentRequestId;
 
-      const playlist = await getPlaylist(payload.list);
+      const playlist = await vtube.getPlaylist(payload.list);
 
       if (store.state.currentRequestId !== requestId) return;
 

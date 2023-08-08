@@ -72,8 +72,8 @@ import {
   watch,
   watchEffect,
 } from 'vue';
+import { YTVideo } from '@dogonis/vtube-client';
 
-import { getFormats, getInfo } from "@/api/main/player";
 import { env } from '@/env';
 import { getMidItem } from '@/helpers/functions/getMidItem';
 import { asyncComputed } from '@/helpers/hooks/asyncComputed';
@@ -81,7 +81,7 @@ import Icon from '@/components/Icon/Icon.vue';
 import { musicStorage } from '@/music-storage';
 import DisplayImage from '@/components/DisplayImage.vue';
 import { ObjectURL } from '@/helpers/classes/object-url.class';
-import { YTVideo } from '@/Responses';
+import { vtube } from '@/helpers/vtube-client';
 
 export default defineComponent({
   components: { Icon, DisplayImage },
@@ -125,10 +125,11 @@ export default defineComponent({
       mime: string, 
       obj: ObjectURL | null
     }>((status) => {
-      if (!code.value) return "EXIT";
+      const videoID = code.value;
+      if (!videoID) return "EXIT";
 
       if (saved.value) {
-        return musicStorage.getAudio(code.value)
+        return musicStorage.getAudio(videoID)
           .then((blob) => {
             if (!blob || !status.isActive) return "EXIT";
             const url = new ObjectURL(blob);
@@ -140,16 +141,14 @@ export default defineComponent({
           });
       }
 
-      return getFormats(code.value, "audio")
+      return vtube.video.formats(videoID, "audio")
         .then((formats) => {
           if (!status.isActive) return "EXIT";
-          const url = new URL(`/player/${code.value}/`, env.MAIN_API);
 
           const midFormat = getMidItem(formats);
 
-          url.searchParams.set("itag", midFormat.itag + "");
           return {
-            src: url.toString(),
+            src: vtube.video.srcURL(videoID, midFormat.itag),
             mime: midFormat.mime,
             obj: null,
           };
@@ -184,7 +183,7 @@ export default defineComponent({
         };
       }
       return {
-        ...(await getInfo(code.value)),
+        ...(await vtube.video.info(code.value)),
         obj: null,
       };
     });

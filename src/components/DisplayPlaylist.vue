@@ -11,8 +11,8 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
+import { YTImage } from '@dogonis/vtube-client';
 
-import { YTImage } from '@/Responses';
 import { getMidItem } from '@/helpers/functions/getMidItem';
 
 export default defineComponent({
@@ -23,7 +23,7 @@ export default defineComponent({
         },
         display: {
             required: true,
-            type: Array as PropType<Array<YTImage>>,
+            type: Array as PropType<YTImage[]>,
         },
     },
     computed: {

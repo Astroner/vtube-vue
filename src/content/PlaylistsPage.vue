@@ -17,17 +17,16 @@
 
 <script lang="ts">
 import { computed, defineComponent } from "vue";
+import { YTPlaylistWithID } from "@dogonis/vtube-client";
  
 import Page from "@/Pages/components/Page.vue";
 import { useStore } from "@/store";
 import { usePages } from "@/Pages/hooks/usePages";
 import { getMidItem } from "@/helpers/functions/getMidItem";
 import { asyncComputed } from "@/helpers/hooks/asyncComputed";
-import { getUserPlaylists } from "@/api/main/playlists";
 import DisplayPlaylist from "@/components/DisplayPlaylist.vue";
 import { useIsOnline } from "@/helpers/hooks/use-is-online";
 import Heading from "@/components/Heading.vue";
-import { YTPlaylistWithID } from "@/Responses";
 
 export default defineComponent({
   components: { Page, DisplayPlaylist, Heading },
@@ -37,11 +36,11 @@ export default defineComponent({
 
     const isOnline = useIsOnline();
 
-    const token = computed(() => store.state.user.token);
+    const session = computed(() => store.state.user.session);
 
     const [, playlists] = asyncComputed(async () => {
-      if (!token.value || !isOnline.value) return "EXIT";
-      const data = await getUserPlaylists(token.value);
+      if (!session.value || !isOnline.value) return "EXIT";
+      const data = await session.value.userPlaylists();
       return data;
     });
 

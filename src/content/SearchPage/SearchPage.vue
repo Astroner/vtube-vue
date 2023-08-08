@@ -64,17 +64,17 @@ import {
   watch,
   watchEffect,
 } from "vue";
+import { CollectionSearchEntry, SearchEntry } from "@dogonis/vtube-client";
 
 import Page from "@/Pages/components/Page.vue";
 import Input from "@/components/Input.vue";
 import { debounce } from "@/helpers/functions/debounce";
-import { searchMusic, searchYoutube } from "@/api/main/search";
 import { asyncComputed } from "@/helpers/hooks/asyncComputed";
 import FadeIn from "@/components/FadeIn.vue";
 import Button from "@/components/Button.vue";
-import { CollectionSearchEntry, SearchEntry } from "@/Responses";
 import { useStore } from "@/store";
 import { usePages } from "@/Pages/hooks/usePages";
+import { vtube } from "@/helpers/vtube-client";
 
 import Dots from "./components/Dots.vue";
 import Results from "./components/Results.vue";
@@ -106,8 +106,8 @@ export default defineComponent({
       }
 
       const [youtube, music] = await Promise.all([
-        searchYoutube(query.value),
-        searchMusic(query.value),
+        vtube.search.queryYoutube(query.value),
+        vtube.search.queryMusic(query.value),
       ]);
 
       return {

@@ -57,11 +57,10 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
+import { ChannelPreview, YTPlaylistWithID, YTVideo } from "@dogonis/vtube-client";
 
 import Page from "@/Pages/components/Page.vue";
-import { ChannelPreview, YTPlaylistWithID, YTVideo } from "@/Responses";
 import { asyncComputed } from "@/helpers/hooks/asyncComputed";
-import { getArtist } from "@/api/main/getArtist";
 import DisplayImage from "@/components/DisplayImage.vue";
 import FadeIn from "@/components/FadeIn.vue";
 import ExpandableText from "@/components/ExpandableText.vue";
@@ -70,6 +69,7 @@ import DisplayPlaylist from "@/components/DisplayPlaylist.vue";
 import { useCurrentPlying } from "@/helpers/hooks/use-current-playing";
 import { useStore } from "@/store";
 import { usePages } from "@/Pages/hooks/usePages";
+import { vtube } from "@/helpers/vtube-client";
 
 import DisplayChannel from "../SearchPage/components/DisplayChannel.vue";
 
@@ -92,7 +92,7 @@ export default defineComponent({
 
     const [, info] = asyncComputed(() => {
       if (!channel.value) return "EXIT";
-      return getArtist(channel.value.id);
+      return vtube.artist.get(channel.value.id);
     });
 
     return {

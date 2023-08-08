@@ -39,15 +39,14 @@
 import {
   computed, defineComponent,
 } from "vue";
+import { Recommendation } from "@dogonis/vtube-client";
 
 import Page from "@/Pages/components/Page.vue";
-import { getMusicRecommendations } from "@/api/main/getRecommendations";
 import { getMidItem } from "@/helpers/functions/getMidItem";
 import { useStore } from "@/store";
 import { asyncComputed } from "@/helpers/hooks/asyncComputed";
 import DisplayImage from "@/components/DisplayImage.vue";
 import { usePages } from "@/Pages/hooks/usePages";
-import { Recommendation } from "@/Responses";
 import { useIsOnline } from "@/helpers/hooks/use-is-online";
 import Heading from "@/components/Heading.vue";
 
@@ -59,11 +58,11 @@ export default defineComponent({
 
     const isOnline = useIsOnline();
 
-    const token = computed(() => store.state.user.token);
+    const session = computed(() => store.state.user.session);
 
     const [, categories] = asyncComputed(async () => {
-      if (!token.value || !isOnline.value) return "EXIT";
-      const result = await getMusicRecommendations(token.value);
+      if (!session.value || !isOnline.value) return "EXIT";
+      const result = await session.value.recommendations.music();
       return result.categories;
     });
 

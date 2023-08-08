@@ -47,7 +47,7 @@ export default defineComponent({
     const username = ref<string>("");
     const password = ref("");
 
-    const isLoggedIn = computed(() => !!store.state.user.token);
+    const isLoggedIn = computed(() => !!store.state.user.session);
     const userInfo = computed(() => store.state.user.info);
 
     return {

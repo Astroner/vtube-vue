@@ -46,7 +46,8 @@
 import {
  PropType, toRef, ref, watchEffect, computed, defineComponent, 
 } from "vue";
-import { YTImage } from "@/Responses";
+import { YTImage } from "@dogonis/vtube-client";
+
 import { useSaved } from "@/music-storage/use-saved";
 import { musicStorage } from "@/music-storage";
 import { useIsDownloading } from "@/helpers/hooks/use-is-downloading";

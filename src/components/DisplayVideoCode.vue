@@ -9,9 +9,11 @@
 </template>
 
 <script lang="ts">
-import { getInfo } from "@/api/main/player";
-import { asyncComputed } from "@/helpers/hooks/asyncComputed";
 import { defineComponent, toRef } from "vue";
+
+import { asyncComputed } from "@/helpers/hooks/asyncComputed";
+import { vtube } from "@/helpers/vtube-client";
+
 import DisplayVideo from "./DisplayVideo.vue";
 
 export default defineComponent({
@@ -26,7 +28,7 @@ export default defineComponent({
     setup(props) {
         const code = toRef(props, "code");
 
-        const [, info] = asyncComputed(() => getInfo(code.value));
+        const [, info] = asyncComputed(() => vtube.video.info(code.value));
 
         return {
             info,

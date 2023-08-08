@@ -1,5 +1,7 @@
-import { getPlaylist } from "@/api/main/playlists";
 import { AxiosError } from "axios";
+
+import { vtube } from "@/helpers/vtube-client";
+
 import { storage } from "./db-model";
 import { PlaylistDiff } from "./music-storage.model";
 
@@ -9,7 +11,7 @@ export const getPlaylistsDiff = async () => {
     const diffs = await Promise.all(saves.map(async (saved): Promise<PlaylistDiff> => {
         try {
             const savedVideos = await storage.getAllBy("playlistAudios", "list", saved.list);
-            const info = await getPlaylist(saved.list);
+            const info = await vtube.getPlaylist(saved.list);
             const videosMap = new Map(info.list.items.map((item) => [item.code, item.code]));
 
             const diff = new Array<{ type: "DEL" | "ADD", code: string }>();

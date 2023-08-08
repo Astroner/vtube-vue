@@ -45,17 +45,17 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
+import { ChannelPreview, YTVideo } from "@dogonis/vtube-client";
 
-import { getChannelInfo, getChannelVideos } from "@/api/main/channel";
 import { asyncComputed } from "@/helpers/hooks/asyncComputed";
 import Page from "@/Pages/components/Page.vue";
-import { ChannelPreview, YTVideo } from "@/Responses";
 import ExpandableText from "@/components/ExpandableText.vue";
 import DisplayImage from "@/components/DisplayImage.vue";
 import FadeIn from "@/components/FadeIn.vue";
 import DisplayVideo from "@/components/DisplayVideo.vue";
 import { useStore } from "@/store";
 import { useCurrentPlying } from "@/helpers/hooks/use-current-playing";
+import { vtube } from "@/helpers/vtube-client";
 
 export default defineComponent({
     components: {
@@ -73,13 +73,13 @@ export default defineComponent({
 
         const [, channel] = asyncComputed(() => {
             if (!preview.value) return "EXIT";
-            return getChannelInfo(preview.value.id);
+            return vtube.channel.info(preview.value.id);
         });
 
         const [, videos] = asyncComputed(() => {
             if (!preview.value) return "EXIT";
 
-            return getChannelVideos(preview.value.id);
+            return vtube.channel.videos(preview.value.id);
         });
 
         return {
