@@ -17,17 +17,13 @@ export const store = createStore({
       const token = localStorage.getItem(tokenKey);
       if (token) {
         initialStore.state.user.session = await vtube.user.restoreSession(token);
+        store.dispatch("fetchInfo");
       }
 
       initialStore.subscribe((_, state) => {
         if (state.user.session) localStorage.setItem(tokenKey, state.user.session.getToken());
         else localStorage.removeItem(tokenKey);
       });
-    },
-    async (initialStore) => {
-      if (initialStore.state.user.session) {
-        setTimeout(() => store.dispatch("fetchInfo"), 0);
-      }
     },
   ],
 });
